@@ -7,9 +7,13 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+#define VENT_UNREACHABLE() __assume(false)
+
 namespace {
-struct Cell {
-    bool IsFilled = false;
+enum class Cell {
+    Air,
+    Snow,
+    Wall
 };
 
 size_t getIndexFromCoordinates(const sf::Vector2i& coordinates, const size_t worldWidth)
@@ -19,7 +23,15 @@ size_t getIndexFromCoordinates(const sf::Vector2i& coordinates, const size_t wor
 
 sf::Color renderCell(const Cell& cell)
 {
-    return (cell.IsFilled ? sf::Color(255, 255, 255, 255) : sf::Color(0, 0, 0, 255));
+    switch (cell) {
+    case Cell::Air:
+        return sf::Color(0, 0, 0, 255);
+    case Cell::Snow:
+        return sf::Color(255, 255, 255, 255);
+    case Cell::Wall:
+        return sf::Color(128, 128, 128, 255);
+    }
+    VENT_UNREACHABLE();
 }
 
 void renderWorld(sf::Image& into, const Cell& front, const sf::Vector2u& worldSize)
@@ -49,20 +61,34 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
         for (size_t x = 0; x < worldWidth; ++x) {
             const size_t cellIndex = getIndexFromCoordinates(sf::Vector2i(x, y), worldWidth);
             const Cell& cell = (&front)[cellIndex];
-            if (!cell.IsFilled) {
+            switch (cell) {
+            case Cell::Air:
                 continue;
+
+            case Cell::Snow: {
+                if (y == (worldHeight - 1)) {
+                    newWorld[cellIndex] = cell;
+                    continue;
+                }
+                const size_t belowIndex = getIndexFromCoordinates(sf::Vector2i(x, y + 1), worldWidth);
+                const Cell& below = (&front)[belowIndex];
+                switch (below) {
+                case Cell::Air:
+                    newWorld[cellIndex] = Cell::Air;
+                    newWorld[belowIndex] = cell;
+                    break;
+
+                case Cell::Snow:
+                case Cell::Wall:
+                    newWorld[cellIndex] = cell;
+                    break;
+                }
+                break;
             }
-            if (y == (worldHeight - 1)) {
-                newWorld[cellIndex].IsFilled = true;
-                continue;
-            }
-            const size_t belowIndex = getIndexFromCoordinates(sf::Vector2i(x, y + 1), worldWidth);
-            const Cell& below = (&front)[belowIndex];
-            if (below.IsFilled) {
-                newWorld[cellIndex].IsFilled = true;
-            } else {
-                newWorld[cellIndex].IsFilled = false;
-                newWorld[belowIndex].IsFilled = true;
+
+            case Cell::Wall:
+                newWorld[cellIndex] = cell;
+                break;
             }
         }
     }
@@ -83,7 +109,8 @@ int main()
     sf::Image worldImage;
     worldImage.create(worldSize.x, worldSize.y);
 
-    bool isMouseDown = false;
+    bool isMouseLeftDown = false;
+    bool isMouseRightDown = false;
     sf::Vector2u mousePosition;
 
     sf::Clock worldStepClock;
@@ -104,12 +131,28 @@ int main()
             }
 
             if (event.type == sf::Event::MouseButtonPressed) {
-                isMouseDown = true;
+                switch (event.mouseButton.button) {
+                case sf::Mouse::Button::Left:
+                    isMouseLeftDown = true;
+                    break;
+
+                case sf::Mouse::Button::Right:
+                    isMouseRightDown = true;
+                    break;
+                }
                 mousePosition = sf::Vector2u(event.mouseButton.x, event.mouseButton.y);
             }
 
             if (event.type == sf::Event::MouseButtonReleased) {
-                isMouseDown = false;
+                switch (event.mouseButton.button) {
+                case sf::Mouse::Button::Left:
+                    isMouseLeftDown = false;
+                    break;
+
+                case sf::Mouse::Button::Right:
+                    isMouseRightDown = false;
+                    break;
+                }
             }
 
             if (event.type == sf::Event::MouseMoved) {
@@ -129,7 +172,7 @@ int main()
                     break;
                 }
 
-                if (isMouseDown) {
+                if (isMouseLeftDown || isMouseRightDown) {
                     for (ptrdiff_t y = -20; y < 20; ++y) {
                         for (ptrdiff_t x = -20; x < 20; ++x) {
                             const size_t index = getIndexFromCoordinates(sf::Vector2i(
@@ -137,7 +180,7 @@ int main()
                                                                              static_cast<ptrdiff_t>(mousePosition.y) + y),
                                 worldSize.x);
                             if (index < world.size()) {
-                                world[index].IsFilled = true;
+                                world[index] = (isMouseLeftDown ? Cell::Snow : Cell::Wall);
                             }
                         }
                     }
