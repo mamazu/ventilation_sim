@@ -117,19 +117,6 @@ int main()
             }
         }
 
-        if (isMouseDown) {
-            for (ptrdiff_t y = -20; y < 20; ++y) {
-                for (ptrdiff_t x = -20; x < 20; ++x) {
-                    const size_t index = getIndexFromCoordinates(sf::Vector2i(
-                        static_cast<ptrdiff_t>(mousePosition.x) + x,
-                        static_cast<ptrdiff_t>(mousePosition.y) + y), worldSize.x);
-                    if (index < world.size()) {
-                        world[index].IsFilled = true;
-                    }
-                }
-            }
-        }
-
         {
             const sf::Time startedStepping = worldStepClock.getElapsedTime();
             const sf::Time stopStepping = (startedStepping + sf::milliseconds(15));
@@ -141,6 +128,21 @@ int main()
                 if (elapsed < nextWorldStep) {
                     break;
                 }
+
+                if (isMouseDown) {
+                    for (ptrdiff_t y = -20; y < 20; ++y) {
+                        for (ptrdiff_t x = -20; x < 20; ++x) {
+                            const size_t index = getIndexFromCoordinates(sf::Vector2i(
+                                                                             static_cast<ptrdiff_t>(mousePosition.x) + x,
+                                                                             static_cast<ptrdiff_t>(mousePosition.y) + y),
+                                worldSize.x);
+                            if (index < world.size()) {
+                                world[index].IsFilled = true;
+                            }
+                        }
+                    }
+                }
+
                 std::vector<Cell> newWorld = simulateStep(world.front(), worldSize);
                 world = std::move(newWorld);
                 nextWorldStep += sf::milliseconds(3);
