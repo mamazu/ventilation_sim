@@ -12,7 +12,7 @@ struct Cell {
     bool IsFilled = false;
 };
 
-size_t getIndexFromCoordinates(const sf::Vector2u& coordinates, const size_t worldWidth)
+size_t getIndexFromCoordinates(const sf::Vector2i& coordinates, const size_t worldWidth)
 {
     return (coordinates.y * worldWidth) + coordinates.x;
 }
@@ -47,7 +47,7 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
     std::vector<Cell> newWorld(worldWidth * worldHeight);
     for (size_t y = 0; y < worldHeight; ++y) {
         for (size_t x = 0; x < worldWidth; ++x) {
-            const size_t cellIndex = getIndexFromCoordinates(sf::Vector2u(x, y), worldWidth);
+            const size_t cellIndex = getIndexFromCoordinates(sf::Vector2i(x, y), worldWidth);
             const Cell& cell = (&front)[cellIndex];
             if (!cell.IsFilled) {
                 continue;
@@ -56,7 +56,7 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
                 newWorld[cellIndex].IsFilled = true;
                 continue;
             }
-            const size_t belowIndex = getIndexFromCoordinates(sf::Vector2u(x, y + 1), worldWidth);
+            const size_t belowIndex = getIndexFromCoordinates(sf::Vector2i(x, y + 1), worldWidth);
             const Cell& below = (&front)[belowIndex];
             if (below.IsFilled) {
                 newWorld[cellIndex].IsFilled = true;
@@ -118,15 +118,21 @@ int main()
         }
 
         if (isMouseDown) {
-            const size_t index = getIndexFromCoordinates(mousePosition, worldSize.x);
-            if (index < world.size()) {
-                world[index].IsFilled = true;
+            for (ptrdiff_t y = -20; y < 20; ++y) {
+                for (ptrdiff_t x = -20; x < 20; ++x) {
+                    const size_t index = getIndexFromCoordinates(sf::Vector2i(
+                        static_cast<ptrdiff_t>(mousePosition.x) + x,
+                        static_cast<ptrdiff_t>(mousePosition.y) + y), worldSize.x);
+                    if (index < world.size()) {
+                        world[index].IsFilled = true;
+                    }
+                }
             }
         }
 
         {
             const sf::Time startedStepping = worldStepClock.getElapsedTime();
-            const sf::Time stopStepping = (startedStepping + sf::milliseconds(33));
+            const sf::Time stopStepping = (startedStepping + sf::milliseconds(15));
             for (;;) {
                 const sf::Time elapsed = worldStepClock.getElapsedTime();
                 if (elapsed >= stopStepping) {
@@ -137,7 +143,7 @@ int main()
                 }
                 std::vector<Cell> newWorld = simulateStep(world.front(), worldSize);
                 world = std::move(newWorld);
-                nextWorldStep += sf::milliseconds(20);
+                nextWorldStep += sf::milliseconds(3);
             }
         }
 
