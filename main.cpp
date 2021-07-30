@@ -94,6 +94,11 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
     }
     return newWorld;
 }
+
+void clearWorld(std::vector<Cell>& world)
+{
+    std::fill(world.begin(), world.end(), Cell::Air);
+}
 }
 
 int main()
@@ -196,7 +201,9 @@ int main()
 
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-                ImGui::MenuItem("New", "Ctrl+N");
+                if (ImGui::MenuItem("New", "Ctrl+N")) {
+                    clearWorld(world);
+                }
                 ImGui::MenuItem("Save", "Ctrl+S");
                 ImGui::EndMenu();
             }
