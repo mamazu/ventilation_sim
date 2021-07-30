@@ -116,6 +116,7 @@ int main()
 
     bool isMouseLeftDown = false;
     bool isMouseRightDown = false;
+    int brushSize = 20;
     sf::Vector2u mousePosition;
 
     sf::Clock worldStepClock;
@@ -131,7 +132,7 @@ int main()
                 window.close();
             }
 
-            if (ImGui::IsAnyItemHovered()) {
+            if (ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive() || ImGui::IsAnyItemFocused()) {
                 continue;
             }
 
@@ -178,8 +179,8 @@ int main()
                 }
 
                 if (isMouseLeftDown || isMouseRightDown) {
-                    for (ptrdiff_t y = -20; y < 20; ++y) {
-                        for (ptrdiff_t x = -20; x < 20; ++x) {
+                    for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
+                        for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
                             const size_t index = getIndexFromCoordinates(sf::Vector2i(
                                                                              static_cast<ptrdiff_t>(mousePosition.x) + x,
                                                                              static_cast<ptrdiff_t>(mousePosition.y) + y),
@@ -205,10 +206,17 @@ int main()
                     clearWorld(world);
                 }
                 ImGui::MenuItem("Save", "Ctrl+S");
+                if (ImGui::MenuItem("Quit", "Ctrl+Q")) {
+                    return 0;
+                }
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
         }
+
+        ImGui::Begin("Toolbox");
+        ImGui::SliderInt("Brush Size", &brushSize, 1, 100);
+        ImGui::End();
 
         window.clear();
 
