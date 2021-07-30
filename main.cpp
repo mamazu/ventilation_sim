@@ -126,7 +126,7 @@ int main()
                 window.close();
             }
 
-            if (ImGui::IsAnyItemActive()) {
+            if (ImGui::IsAnyItemHovered()) {
                 continue;
             }
 
