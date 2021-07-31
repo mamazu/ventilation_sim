@@ -99,7 +99,6 @@ void clearWorld(std::vector<Cell>& world)
 {
     std::fill(world.begin(), world.end(), Cell::Air);
 }
-
 }
 
 int main()
@@ -186,7 +185,6 @@ int main()
                 }
 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-
                     for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
                         for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
                             const size_t index = getIndexFromCoordinates(sf::Vector2i(
@@ -230,13 +228,14 @@ int main()
 
         if (ImGui::BeginCombo("Select tool", currentTool)) {
             for (size_t i = 0; i < 3; i++) {
-                bool is_selected = (currentTool == items[i]);
-                if (ImGui::Selectable(items[i], is_selected)) {
+                bool isSelected = (currentTool == items[i]);
+                if (ImGui::Selectable(items[i], isSelected)) {
                     currentTool = items[i];
                     currentToolIndex = static_cast<Cell>(i);
                 }
-                if (is_selected)
+                if (isSelected) {
                     ImGui::SetItemDefaultFocus();
+                }
             }
             ImGui::EndCombo();
         }
