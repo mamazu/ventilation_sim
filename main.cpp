@@ -163,6 +163,20 @@ int main()
             }
         }
 
+        if (isMouseLeftDown) {
+            for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
+                for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
+                    const size_t index = getIndexFromCoordinates(sf::Vector2i(
+                                                                     static_cast<ptrdiff_t>(mousePosition.x) + x,
+                                                                     static_cast<ptrdiff_t>(mousePosition.y) + y),
+                        worldSize.x);
+                    if (index < world.size()) {
+                        world[index] = currentToolIndex;
+                    }
+                }
+            }
+        }
+
         const sf::Time startedStepping = worldStepClock.getElapsedTime();
         const sf::Time stopStepping = (startedStepping + sf::milliseconds(15));
         for (;;) {
@@ -172,20 +186,6 @@ int main()
             }
             if (elapsed < nextWorldStep) {
                 break;
-            }
-
-            if (isMouseLeftDown) {
-                for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
-                    for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
-                        const size_t index = getIndexFromCoordinates(sf::Vector2i(
-                                                                         static_cast<ptrdiff_t>(mousePosition.x) + x,
-                                                                         static_cast<ptrdiff_t>(mousePosition.y) + y),
-                            worldSize.x);
-                        if (index < world.size()) {
-                            world[index] = currentToolIndex;
-                        }
-                    }
-                }
             }
 
             if (!isPaused) {
