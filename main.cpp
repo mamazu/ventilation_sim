@@ -6,14 +6,17 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <array>
+#include <fstream>
+#include <iostream>
 
 #define VENT_UNREACHABLE() __assume(false)
 
 namespace {
-enum class Cell {
+enum class Cell : char {
     Air,
     Snow,
-    Wall
+    Wall,
 };
 
 size_t getIndexFromCoordinates(const sf::Vector2i& coordinates, const size_t worldWidth)
@@ -52,6 +55,11 @@ void renderWorld(sf::Image& into, const Cell& front, const sf::Vector2u& worldSi
     }
 }
 
+bool isPermissive(const Cell& cell)
+{
+    return cell == Cell::Air;
+}
+
 std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
 {
     const size_t worldWidth = worldSize.x;
@@ -72,16 +80,11 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
                 }
                 const size_t belowIndex = getIndexFromCoordinates(sf::Vector2i(x, y + 1), worldWidth);
                 const Cell& below = (&front)[belowIndex];
-                switch (below) {
-                case Cell::Air:
+                if (isPermissive(below)) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[belowIndex] = cell;
-                    break;
-
-                case Cell::Snow:
-                case Cell::Wall:
+                } else {
                     newWorld[cellIndex] = cell;
-                    break;
                 }
                 break;
             }
@@ -99,6 +102,19 @@ void clearWorld(std::vector<Cell>& world)
 {
     std::fill(world.begin(), world.end(), Cell::Air);
 }
+
+void saveWorldToFile(const std::vector<Cell>& world, const std::string& fileName)
+{
+    std::ofstream file(fileName, std::ofstream::binary);
+    file.write(reinterpret_cast<const char*>(world.data()), sizeof(Cell) * world.size());
+}
+
+void loadWorldFromFile(std::vector<Cell>& world, const std::string& fileName)
+{
+    std::ifstream file(fileName, std::ifstream::binary);
+    file.read(reinterpret_cast<char*>(world.data()), sizeof(Cell) * world.size());
+}
+
 }
 
 int main()
@@ -202,7 +218,12 @@ int main()
                 if (ImGui::MenuItem("New", "Ctrl+N")) {
                     clearWorld(world);
                 }
-                ImGui::MenuItem("Save", "Ctrl+S");
+                if (ImGui::MenuItem("Save", "Ctrl+S")) {
+                    saveWorldToFile(world, "world.dat");
+                }
+                if (ImGui::MenuItem("Load", "Ctrl+O")) {
+                    loadWorldFromFile(world, "world.dat");
+                }
                 if (ImGui::MenuItem("Quit", "Ctrl+Q")) {
                     return 0;
                 }
@@ -230,7 +251,6 @@ int main()
             }
             ImGui::EndCombo();
         }
-
         ImGui::End();
 
         ImGui::Begin("Speed");
