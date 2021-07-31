@@ -123,6 +123,9 @@ int main()
     sf::Clock worldStepClock;
     sf::Time nextWorldStep = worldStepClock.getElapsedTime();
 
+    int timeBetweenStepsInMilliseconds = 3;
+    bool isPaused = false;
+
     Cell currentToolIndex = Cell::Snow;
     sf::Clock deltaClock;
     while (window.isOpen()) {
@@ -168,7 +171,9 @@ int main()
             }
         }
 
-        {
+        if (isPaused) {
+            nextWorldStep = worldStepClock.getElapsedTime();
+        } else {
             const sf::Time startedStepping = worldStepClock.getElapsedTime();
             const sf::Time stopStepping = (startedStepping + sf::milliseconds(15));
             for (;;) {
@@ -197,7 +202,7 @@ int main()
 
                 std::vector<Cell> newWorld = simulateStep(world.front(), worldSize);
                 world = std::move(newWorld);
-                nextWorldStep += sf::milliseconds(3);
+                nextWorldStep += sf::milliseconds(timeBetweenStepsInMilliseconds);
             }
         }
 
@@ -235,6 +240,13 @@ int main()
             }
             ImGui::EndCombo();
         }
+
+        ImGui::End();
+
+        ImGui::Begin("Speed");
+        ImGui::SliderInt("Time between steps (ms)", &timeBetweenStepsInMilliseconds, 0, 1000);
+        ImGui::Checkbox("Pause", &isPaused);
+        ImGui::End();
 
         window.clear();
 
