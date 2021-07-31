@@ -115,7 +115,6 @@ int main()
     worldImage.create(worldSize.x, worldSize.y);
 
     bool isMouseLeftDown = false;
-    bool isMouseRightDown = false;
     int brushSize = 20;
     sf::Vector2u mousePosition;
 
@@ -140,33 +139,27 @@ int main()
                 continue;
             }
 
-            if (event.type == sf::Event::MouseButtonPressed) {
-                switch (event.mouseButton.button) {
-                case sf::Mouse::Button::Left:
-                    isMouseLeftDown = true;
-                    break;
-
-                case sf::Mouse::Button::Right:
-                    isMouseRightDown = true;
-                    break;
+            if (!ImGui::GetIO().WantCaptureMouse) {
+                if (event.type == sf::Event::MouseButtonPressed) {
+                    switch (event.mouseButton.button) {
+                    case sf::Mouse::Button::Left:
+                        isMouseLeftDown = true;
+                        break;
+                    }
+                    mousePosition = sf::Vector2u(event.mouseButton.x, event.mouseButton.y);
                 }
-                mousePosition = sf::Vector2u(event.mouseButton.x, event.mouseButton.y);
-            }
 
-            if (event.type == sf::Event::MouseButtonReleased) {
-                switch (event.mouseButton.button) {
-                case sf::Mouse::Button::Left:
-                    isMouseLeftDown = false;
-                    break;
-
-                case sf::Mouse::Button::Right:
-                    isMouseRightDown = false;
-                    break;
+                if (event.type == sf::Event::MouseButtonReleased) {
+                    switch (event.mouseButton.button) {
+                    case sf::Mouse::Button::Left:
+                        isMouseLeftDown = false;
+                        break;
+                    }
                 }
-            }
 
-            if (event.type == sf::Event::MouseMoved) {
-                mousePosition = sf::Vector2u(event.mouseMove.x, event.mouseMove.y);
+                if (event.type == sf::Event::MouseMoved) {
+                    mousePosition = sf::Vector2u(event.mouseMove.x, event.mouseMove.y);
+                }
             }
         }
 
@@ -184,7 +177,7 @@ int main()
                     break;
                 }
 
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+                if (isMouseLeftDown) {
                     for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
                         for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
                             const size_t index = getIndexFromCoordinates(sf::Vector2i(
