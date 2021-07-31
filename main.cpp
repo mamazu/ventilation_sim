@@ -163,38 +163,36 @@ int main()
             }
         }
 
-        if (isPaused) {
-            nextWorldStep = worldStepClock.getElapsedTime();
-        } else {
-            const sf::Time startedStepping = worldStepClock.getElapsedTime();
-            const sf::Time stopStepping = (startedStepping + sf::milliseconds(15));
-            for (;;) {
-                const sf::Time elapsed = worldStepClock.getElapsedTime();
-                if (elapsed >= stopStepping) {
-                    break;
-                }
-                if (elapsed < nextWorldStep) {
-                    break;
-                }
+        const sf::Time startedStepping = worldStepClock.getElapsedTime();
+        const sf::Time stopStepping = (startedStepping + sf::milliseconds(15));
+        for (;;) {
+            const sf::Time elapsed = worldStepClock.getElapsedTime();
+            if (elapsed >= stopStepping) {
+                break;
+            }
+            if (elapsed < nextWorldStep) {
+                break;
+            }
 
-                if (isMouseLeftDown) {
-                    for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
-                        for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
-                            const size_t index = getIndexFromCoordinates(sf::Vector2i(
-                                                                             static_cast<ptrdiff_t>(mousePosition.x) + x,
-                                                                             static_cast<ptrdiff_t>(mousePosition.y) + y),
-                                worldSize.x);
-                            if (index < world.size()) {
-                                world[index] = currentToolIndex;
-                            }
+            if (isMouseLeftDown) {
+                for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
+                    for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
+                        const size_t index = getIndexFromCoordinates(sf::Vector2i(
+                                                                         static_cast<ptrdiff_t>(mousePosition.x) + x,
+                                                                         static_cast<ptrdiff_t>(mousePosition.y) + y),
+                            worldSize.x);
+                        if (index < world.size()) {
+                            world[index] = currentToolIndex;
                         }
                     }
                 }
+            }
 
+            if (!isPaused) {
                 std::vector<Cell> newWorld = simulateStep(world.front(), worldSize);
                 world = std::move(newWorld);
-                nextWorldStep += sf::milliseconds(timeBetweenStepsInMilliseconds);
             }
+            nextWorldStep += sf::milliseconds(timeBetweenStepsInMilliseconds);
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
