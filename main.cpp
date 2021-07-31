@@ -99,6 +99,7 @@ void clearWorld(std::vector<Cell>& world)
 {
     std::fill(world.begin(), world.end(), Cell::Air);
 }
+
 }
 
 int main()
@@ -122,6 +123,7 @@ int main()
     sf::Clock worldStepClock;
     sf::Time nextWorldStep = worldStepClock.getElapsedTime();
 
+    Cell currentToolIndex = Cell::Snow;
     sf::Clock deltaClock;
     while (window.isOpen()) {
         sf::Event event;
@@ -178,7 +180,8 @@ int main()
                     break;
                 }
 
-                if (isMouseLeftDown || isMouseRightDown) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+
                     for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
                         for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
                             const size_t index = getIndexFromCoordinates(sf::Vector2i(
@@ -186,7 +189,7 @@ int main()
                                                                              static_cast<ptrdiff_t>(mousePosition.y) + y),
                                 worldSize.x);
                             if (index < world.size()) {
-                                world[index] = (isMouseLeftDown ? Cell::Snow : Cell::Wall);
+                                world[index] = currentToolIndex;
                             }
                         }
                     }
@@ -216,7 +219,22 @@ int main()
 
         ImGui::Begin("Toolbox");
         ImGui::SliderInt("Brush Size", &brushSize, 1, 100);
-        ImGui::End();
+
+        const char* items[] = { "Air", "Snow", "Wall" };
+        const char* currentTool = items[static_cast<size_t>(currentToolIndex)];
+
+        if (ImGui::BeginCombo("Select tool", currentTool)) {
+            for (size_t i = 0; i < 3; i++) {
+                bool is_selected = (currentTool == items[i]);
+                if (ImGui::Selectable(items[i], is_selected)) {
+                    currentTool = items[i];
+                    currentToolIndex = static_cast<Cell>(i);
+                }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
 
         window.clear();
 
