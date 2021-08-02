@@ -4,9 +4,15 @@ project(ventilation_sim)
 add_definitions(/std:c++17)
 add_definitions(/WX)
 
-add_executable(ventilation_sim main.cpp)
-
+add_library(ventilation STATIC simulation.hpp simulation.cpp)
 find_package(SFML COMPONENTS graphics REQUIRED)
+target_link_libraries(ventilation PUBLIC sfml-graphics)
+
+find_package(Catch2 REQUIRED)
+add_executable(tests tests.cpp)
+target_link_libraries(tests PRIVATE ventilation Catch2::Catch2)
+
+add_executable(ventilation_sim main.cpp)
 find_package(imgui REQUIRED)
 find_package(ImGui-SFML REQUIRED)
-target_link_libraries(ventilation_sim PRIVATE ImGui-SFML::ImGui-SFML)
+target_link_libraries(ventilation_sim PRIVATE ventilation ImGui-SFML::ImGui-SFML)
