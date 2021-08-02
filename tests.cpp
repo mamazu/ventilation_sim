@@ -17,3 +17,11 @@ TEST_CASE("simplest non-empty world")
     const std::vector<Cell> expected = { Cell::Air };
     REQUIRE(expected == result);
 }
+
+TEST_CASE("wall does not fall")
+{
+    std::vector<Cell> world = { Cell::Wall, Cell::Air };
+    const std::vector<Cell> result = simulateStep(world.front(), sf::Vector2u(1, 2));
+    const std::vector<Cell> expected = { Cell::Wall, Cell::Air };
+    REQUIRE(expected == result);
+}
