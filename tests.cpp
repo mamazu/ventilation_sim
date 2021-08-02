@@ -25,3 +25,27 @@ TEST_CASE("wall does not fall")
     const std::vector<Cell> expected = { Cell::Wall, Cell::Air };
     REQUIRE(expected == result);
 }
+
+TEST_CASE("snow falls")
+{
+    std::vector<Cell> world = { Cell::Snow, Cell::Air };
+    const std::vector<Cell> result = simulateStep(world.front(), sf::Vector2u(1, 2));
+    const std::vector<Cell> expected = { Cell::Air, Cell::Snow };
+    REQUIRE(expected == result);
+}
+
+TEST_CASE("snow collects at the bottom")
+{
+    std::vector<Cell> world = { Cell::Snow };
+    const std::vector<Cell> result = simulateStep(world.front(), sf::Vector2u(1, 1));
+    const std::vector<Cell> expected = { Cell::Snow };
+    REQUIRE(expected == result);
+}
+
+TEST_CASE("wall stops snow")
+{
+    std::vector<Cell> world = { Cell::Snow, Cell::Wall };
+    const std::vector<Cell> result = simulateStep(world.front(), sf::Vector2u(1, 2));
+    const std::vector<Cell> expected = { Cell::Snow, Cell::Wall };
+    REQUIRE(expected == result);
+}
