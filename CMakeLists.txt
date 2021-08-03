@@ -20,7 +20,7 @@ find_package(Catch2 REQUIRED)
 add_executable(tests tests.cpp)
 target_link_libraries(tests PRIVATE ventilation Catch2::Catch2)
 
-add_executable(ventilation_sim main.cpp)
+add_executable(ventilation_sim main.cpp own_imgui.cpp)
 find_package(imgui REQUIRED)
 find_package(ImGui-SFML REQUIRED)
 target_link_libraries(ventilation_sim PRIVATE ventilation ImGui-SFML::ImGui-SFML)

@@ -16,7 +16,7 @@ bool isPermissive(const Cell& cell)
     return cell == Cell::Air;
 }
 
-std::vector<Cell> simulateStep(const Cell& front, const Point& worldSize)
+World simulateStep(const Cell& front, const Point& worldSize)
 {
     const size_t worldWidth = worldSize.x;
     const size_t worldHeight = worldSize.y;
