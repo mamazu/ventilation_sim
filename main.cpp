@@ -27,9 +27,10 @@ sf::Color renderCell(const Cell& cell)
     VENT_UNREACHABLE();
 }
 
-void renderWorld(sf::Image& into, const Cell& front, const sf::Vector2u& worldSize)
+void renderWorld(sf::Image& into, const Cell& front, const Point& worldSize)
 {
-    assert(into.getSize() == worldSize);
+    assert(static_cast<ptrdiff_t>(into.getSize().x) == worldSize.x);
+    assert(static_cast<ptrdiff_t>(into.getSize().y) == worldSize.y);
 
     // pixels are marked const for some reason
     sf::Uint8* const pixels = const_cast<sf::Uint8*>(into.getPixelsPtr());
@@ -70,12 +71,12 @@ int main()
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
-    const sf::Vector2u worldSize(window.getSize().x, window.getSize().y);
+    const Point worldSize(window.getSize().x, window.getSize().y);
 
     std::vector<Cell> world(worldSize.x * worldSize.y);
 
     sf::Image worldImage;
-    worldImage.create(worldSize.x, worldSize.y);
+    worldImage.create(static_cast<unsigned>(worldSize.x), static_cast<unsigned>(worldSize.y));
 
     bool isMouseLeftDown = false;
     int brushSize = 20;
@@ -125,12 +126,12 @@ int main()
         if (isMouseLeftDown) {
             for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
                 for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
-                    const size_t index = getIndexFromCoordinates(Point(
-                                                                     static_cast<ptrdiff_t>(mousePosition.x) + x,
-                                                                     static_cast<ptrdiff_t>(mousePosition.y) + y),
-                        worldSize.x);
-                    if (index < world.size()) {
-                        world[index] = currentToolIndex;
+                    const std::optional<size_t> index = getIndexFromCoordinates(Point(
+                                                                                    static_cast<ptrdiff_t>(mousePosition.x) + x,
+                                                                                    static_cast<ptrdiff_t>(mousePosition.y) + y),
+                        worldSize);
+                    if (index) {
+                        world[*index] = currentToolIndex;
                     }
                 }
             }
