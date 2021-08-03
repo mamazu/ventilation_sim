@@ -104,19 +104,15 @@ int main()
 
             if (!ImGui::GetIO().WantCaptureMouse) {
                 if (event.type == sf::Event::MouseButtonPressed) {
-                    switch (event.mouseButton.button) {
-                    case sf::Mouse::Button::Left:
+                    if (event.mouseButton.button == sf::Mouse::Button::Left) {
                         isMouseLeftDown = true;
-                        break;
                     }
                     mousePosition = sf::Vector2u(event.mouseButton.x, event.mouseButton.y);
                 }
 
                 if (event.type == sf::Event::MouseButtonReleased) {
-                    switch (event.mouseButton.button) {
-                    case sf::Mouse::Button::Left:
+                    if (event.mouseButton.button == sf::Mouse::Button::Left) {
                         isMouseLeftDown = false;
-                        break;
                     }
                 }
 
