@@ -1,6 +1,6 @@
 #include "simulation.hpp"
 
-size_t getIndexFromCoordinates(const sf::Vector2i& coordinates, const size_t worldWidth)
+size_t getIndexFromCoordinates(const Point& coordinates, const size_t worldWidth)
 {
     return (coordinates.y * worldWidth) + coordinates.x;
 }
@@ -17,7 +17,7 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
     std::vector<Cell> newWorld(worldWidth * worldHeight);
     for (size_t y = 0; y < worldHeight; ++y) {
         for (size_t x = 0; x < worldWidth; ++x) {
-            const size_t cellIndex = getIndexFromCoordinates(sf::Vector2i(x, y), worldWidth);
+            const size_t cellIndex = getIndexFromCoordinates(Point(x, y), worldWidth);
             const Cell& cell = (&front)[cellIndex];
             switch (cell) {
             case Cell::Air:
@@ -28,7 +28,7 @@ std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize)
                     newWorld[cellIndex] = cell;
                     continue;
                 }
-                const size_t belowIndex = getIndexFromCoordinates(sf::Vector2i(x, y + 1), worldWidth);
+                const size_t belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldWidth);
                 const Cell& below = (&front)[belowIndex];
                 if (isPermissive(below)) {
                     newWorld[cellIndex] = Cell::Air;

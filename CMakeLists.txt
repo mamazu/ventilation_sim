@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(ventilation_sim)
 
 add_definitions(/std:c++17)
+add_definitions(/W4)
 add_definitions(/WX)
 
 add_library(ventilation STATIC simulation.hpp simulation.cpp)

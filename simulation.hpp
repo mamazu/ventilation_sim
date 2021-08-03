@@ -8,6 +8,8 @@ enum class Cell : char {
     Wall,
 };
 
-size_t getIndexFromCoordinates(const sf::Vector2i& coordinates, const size_t worldWidth);
+using Point = sf::Vector2<ptrdiff_t>;
+
+size_t getIndexFromCoordinates(const Point& coordinates, const size_t worldWidth);
 bool isPermissive(const Cell& cell);
 std::vector<Cell> simulateStep(const Cell& front, const sf::Vector2u& worldSize);

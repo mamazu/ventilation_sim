@@ -129,7 +129,7 @@ int main()
         if (isMouseLeftDown) {
             for (ptrdiff_t y = -brushSize; y < brushSize; ++y) {
                 for (ptrdiff_t x = -brushSize; x < brushSize; ++x) {
-                    const size_t index = getIndexFromCoordinates(sf::Vector2i(
+                    const size_t index = getIndexFromCoordinates(Point(
                                                                      static_cast<ptrdiff_t>(mousePosition.x) + x,
                                                                      static_cast<ptrdiff_t>(mousePosition.y) + y),
                         worldSize.x);
