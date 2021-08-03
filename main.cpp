@@ -23,6 +23,8 @@ sf::Color renderCell(const Cell& cell)
         return sf::Color(255, 255, 255, 255);
     case Cell::Wall:
         return sf::Color(128, 128, 128, 255);
+    case Cell::Sand:
+        return sf::Color(180, 110, 0, 255);
     }
     VENT_UNREACHABLE();
 }
@@ -179,11 +181,11 @@ int main()
         ImGui::Begin("Toolbox");
         ImGui::SliderInt("Brush Size", &brushSize, 1, 100);
 
-        const char* items[] = { "Air", "Snow", "Wall" };
+        const char* const items[] = { "Air", "Snow", "Wall", "Sand" };
         const char* currentTool = items[static_cast<size_t>(currentToolIndex)];
 
         if (ImGui::BeginCombo("Select tool", currentTool)) {
-            for (size_t i = 0; i < 3; i++) {
+            for (size_t i = 0; i < std::size(items); i++) {
                 bool isSelected = (currentTool == items[i]);
                 if (ImGui::Selectable(items[i], isSelected)) {
                     currentTool = items[i];
