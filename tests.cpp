@@ -53,13 +53,13 @@ TEST_CASE("materials collect at the bottom")
     REQUIRE(expected == result);
 }
 
-TEST_CASE("wall stops falling materials")
+TEST_CASE("collisions")
 {
-    const Cell material = GENERATE(Cell::Snow, Cell::Sand);
-    std::vector<Cell> world = { material, Cell::Wall };
+    const Cell top = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand);
+    const Cell bottom = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand);
+    const std::vector<Cell> world = { top, bottom };
     const std::vector<Cell> result = simulateStep(world.front(), Point(1, 2));
-    const std::vector<Cell> expected = { material, Cell::Wall };
-    REQUIRE(expected == result);
+    REQUIRE(world == result);
 }
 
 TEST_CASE("snow stops snow")
