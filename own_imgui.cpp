@@ -34,9 +34,6 @@ void menuBar(World& world, bool& isDemoVisible)
 
 void addBrushTreeNode(SimulationSettings& settings)
 {
-    if (!ImGui::TreeNode("Brush Settings")) {
-        return;
-    }
     ImGui::SliderInt("Size", &settings.brushSize, 1, 100);
 
     const char* currentLabel = itemLabels[static_cast<size_t>(settings.currentTool)];
@@ -54,17 +51,12 @@ void addBrushTreeNode(SimulationSettings& settings)
         }
         ImGui::EndCombo();
     }
-    ImGui::TreePop();
 }
 
 void addSimulationSettingsNode(SimulationSettings& settings)
 {
-    if (!ImGui::TreeNode("Speed")) {
-        return;
-    }
     ImGui::SliderInt("Time between steps (ms)", &settings.timeBetweenStepsInMilliseconds, 0, 1000);
     ImGui::Checkbox("Pause", &settings.isPaused);
-    ImGui::TreePop();
 }
 
 void renderUI(World& world, SimulationSettings& settings, bool& isDemoVisible)
