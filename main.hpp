@@ -1,15 +1,15 @@
 #pragma once
 
 #include "simulation.hpp"
+#include <chrono>
 #include <string>
 #include <vector>
 
-struct SimulationSettings {
-    int timeBetweenStepsInMilliseconds = 3;
-    bool isPaused = false;
-    int brushSize = 20;
-    Cell currentMaterial = Cell::Snow;
-    float brushStrength = 1.0;
+struct ProfilingInfo {
+    size_t cellsChanged;
+    size_t nonEmptyCells;
+    std::chrono::milliseconds simulationTime;
+    std::chrono::milliseconds renderTime;
 };
 
 void clearWorld(World& world);
