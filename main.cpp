@@ -10,6 +10,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <array>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 
@@ -86,6 +87,7 @@ int main()
     sf::Time nextWorldStep = worldStepClock.getElapsedTime();
 
     SimulationSettings settings;
+    ProfilingInfo profiling;
 
     bool isDemoVisible = false;
 
@@ -139,16 +141,23 @@ int main()
                 break;
             }
 
+            const std::chrono::time_point start = std::chrono::high_resolution_clock::now();
             if (!settings.isPaused) {
-                World newWorld = simulateStep(world);
+                auto [cellsChanged, newWorld] = simulateStep(world);
+                profiling.cellsChanged = cellsChanged;
                 world = std::move(newWorld);
             }
+            const std::chrono::time_point stop = std::chrono::high_resolution_clock::now();
+            profiling.simulationTime = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+
+            profiling.nonEmptyCells = world.Cells.size() - world.getEmptyCells();
             nextWorldStep += sf::milliseconds(settings.timeBetweenStepsInMilliseconds);
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
-        renderUI(world, settings, isDemoVisible);
+        const std::chrono::time_point start = std::chrono::high_resolution_clock::now();
+        renderUI(world, settings, profiling, isDemoVisible);
 
         window.clear();
 
@@ -164,6 +173,8 @@ int main()
 
         ImGui::SFML::Render(window);
         window.display();
+        const std::chrono::time_point stop = std::chrono::high_resolution_clock::now();
+        profiling.renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     }
 
     ImGui::SFML::Shutdown();

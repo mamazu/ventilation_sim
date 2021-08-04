@@ -53,13 +53,26 @@ void addSimulationSettingsNode(SimulationSettings& settings)
     ImGui::Checkbox("Pause", &settings.isPaused);
 }
 
-void renderUI(World& world, SimulationSettings& settings, bool& isDemoVisible)
+void addProfilingNode(const ProfilingInfo& profilingInfo)
+{
+    if (!ImGui::TreeNode("Profiling")) {
+        return;
+    }
+    ImGui::Text(("Cells filled: " + std::to_string(profilingInfo.nonEmptyCells)).c_str());
+    ImGui::Text(("Cells changed: " + std::to_string(profilingInfo.cellsChanged)).c_str());
+    ImGui::Text(("Simulation time: " + std::to_string(profilingInfo.simulationTime.count()) + " ms").c_str());
+    ImGui::Text(("Render time: " + std::to_string(profilingInfo.renderTime.count()) + " ms").c_str());
+    ImGui::TreePop();
+}
+
+void renderUI(World& world, SimulationSettings& settings, const ProfilingInfo& profilingInfo, bool& isDemoVisible)
 {
     menuBar(world, isDemoVisible);
 
     ImGui::Begin("Toolbox");
     addBrushTreeNode(settings);
     addSimulationSettingsNode(settings);
+    addProfilingNode(profilingInfo);
     ImGui::End();
 
     if (isDemoVisible) {

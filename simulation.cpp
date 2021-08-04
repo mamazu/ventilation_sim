@@ -34,6 +34,11 @@ World::World(size_t width, std::initializer_list<Cell> cells)
     assert((Cells.size() % width) == 0);
 }
 
+size_t World::getEmptyCells() const
+{
+    return std::count(Cells.begin(), Cells.end(), Cell::Air);
+}
+
 bool operator==(const World& left, const World& right) noexcept
 {
     return (left.Cells == right.Cells) && (left.Width == right.Width);
@@ -95,11 +100,12 @@ bool canFallInto(const Cell into)
 }
 }
 
-World simulateStep(const World& world)
+std::pair<CellsChanged, World> simulateStep(const World& world)
 {
     const ptrdiff_t worldWidth = world.Width;
+    size_t cellsChanged = 0;
     if (worldWidth == 0) {
-        return world;
+        return {0, world};
     }
     const ptrdiff_t worldHeight = world.Cells.size() / world.Width;
     World result(Point { worldWidth, worldHeight }, Cell::Air);
@@ -122,6 +128,7 @@ World simulateStep(const World& world)
                 if ((belowIndex < result.Cells.size()) && canFallInto(newWorld[belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[belowIndex] = fall(cell, newWorld[belowIndex]);
+                    cellsChanged++;
                 } else {
                     newWorld[cellIndex] = cell;
                 }
@@ -134,6 +141,7 @@ World simulateStep(const World& world)
                     if (canFallInto(newWorld[belowIndex])) {
                         newWorld[cellIndex] = Cell::Air;
                         newWorld[belowIndex] = fall(cell, newWorld[belowIndex]);
+                    cellsChanged++;
                         break;
                     }
 
@@ -157,6 +165,7 @@ World simulateStep(const World& world)
                             newWorld[cellIndex] = Cell::Air;
                             newWorld[belowLeftRightIndex] = fall(cell, newWorld[belowLeftRightIndex]);
                             fellToTheSide = true;
+                            cellsChanged++;
                             break;
                         }
                     }
@@ -176,7 +185,7 @@ World simulateStep(const World& world)
             }
         }
     }
-    return result;
+    return {cellsChanged, result};
 }
 
 void setRectangle(World& world, const Point& center, const Point& worldSize, const SimulationSettings& settings)
@@ -187,8 +196,8 @@ void setRectangle(World& world, const Point& center, const Point& worldSize, con
             if (nextDot >= 1.0) {
                 nextDot -= 1.0;
                 const std::optional<size_t> index = getIndexFromCoordinates(Point(
-                                                                                static_cast<ptrdiff_t>(mousePosition.x) + x,
-                                                                                static_cast<ptrdiff_t>(mousePosition.y) + y),
+                                                                                static_cast<ptrdiff_t>(center.x) + x,
+                                                                                static_cast<ptrdiff_t>(center.y) + y),
                     worldSize);
                 if (index) {
                     world.Cells[*index] = settings.currentMaterial;

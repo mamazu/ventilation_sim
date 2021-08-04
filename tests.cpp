@@ -4,90 +4,114 @@
 
 TEST_CASE("filling a rectangle with size 1")
 {
-   World world = { 
-       Cell::Air, Cell::Air,
-       Cell::Air, Cell::Air,
-    };
+    World world(2, {
+                       Cell::Air,
+                       Cell::Air,
+                       // below:
+                       Cell::Air,
+                       Cell::Air,
+                   });
 
-    setRectangle(world, Point(0, 0), Point(2, 2), 1, Cell::Sand);
+    SimulationSettings settings;
+    settings.currentMaterial = Cell::Sand;
+    settings.brushSize = 1;
+    setRectangle(world, Point(0, 0), Point(2, 2), settings);
 
-    REQUIRE(world[0] == Cell::Sand);
+    REQUIRE(world.Cells[0] == Cell::Sand);
 }
 
 TEST_CASE("filling a rectangle with size 2")
 {
-   World world = { 
-       Cell::Air, Cell::Air,
-       Cell::Air, Cell::Air,
-    };
+    World world(2, {
+                       Cell::Air,
+                       Cell::Air,
+                       // below:
+                       Cell::Air,
+                       Cell::Air,
+                   });
 
-    setRectangle(world, Point(0, 0), Point(2, 2), 2, Cell::Sand);
+    SimulationSettings settings;
+    settings.currentMaterial = Cell::Sand;
+    settings.brushSize = 2;
+    setRectangle(world, Point(0, 0), Point(2, 2), settings);
 
-    for(size_t i = 0; i < 2 * 2; i++) {
-        REQUIRE(world[i] == Cell::Sand);
+    for (const Cell& cell : world.Cells) {
+        REQUIRE(cell == Cell::Sand);
     }
 }
 
 TEST_CASE("filling a bigger rectangle than the world")
 {
-   World world = { 
-       Cell::Air,
-    };
+    World world(1, {
+                       Cell::Air,
+                   });
 
-    setRectangle(world, Point(0, 0), Point(1, 1), 5, Cell::Sand);
+    SimulationSettings settings;
+    settings.currentMaterial = Cell::Sand;
+    settings.brushSize = 5;
+    setRectangle(world, Point(0, 0), Point(1, 1), settings);
 
-    REQUIRE(world[0] == Cell::Sand);
+    for (const Cell& cell : world.Cells) {
+        REQUIRE(cell == Cell::Sand);
+    }
 }
 
 TEST_CASE("empty world")
 {
     const World dummyWorld(Point(0, 0), Cell::Air);
-    const World result = simulateStep(dummyWorld);
     const World expected(Point(0, 0), Cell::Air);
-    REQUIRE(expected == result);
+
+    const std::pair<CellsChanged, World> result = simulateStep(dummyWorld);
+    REQUIRE(0 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("simplest non-empty world")
 {
     const World world(1, { Cell::Air });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(1, { Cell::Air });
-    REQUIRE(expected == result);
+    REQUIRE(0 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("some materials do not fall")
 {
     const Cell notFalling = GENERATE(Cell::Wall, Cell::Eraser);
     const World world(1, { notFalling, Cell::Air });
-    const World result = simulateStep(world);
-    REQUIRE(world == result);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
+    REQUIRE(0 == result.first);
+    REQUIRE(world == result.second);
 }
 
 TEST_CASE("falling materials")
 {
     const Cell material = GENERATE(Cell::Snow, Cell::Sand);
     const World world(1, { material, Cell::Air });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(1, { Cell::Air, material });
-    REQUIRE(expected == result);
+    REQUIRE(1 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("falling materials leave no gaps")
 {
     const Cell material = GENERATE(Cell::Snow, Cell::Sand);
     const World world(1, { material, material, Cell::Air });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(1, { Cell::Air, material, material });
-    REQUIRE(expected == result);
+    REQUIRE(2 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("materials collect at the bottom")
 {
     const Cell material = GENERATE(Cell::Snow, Cell::Sand, Cell::Eraser, Cell::Wall, Cell::Air);
     const World world(1, { material });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(1, { material });
-    REQUIRE(expected == result);
+    REQUIRE(0 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("collisions")
@@ -95,16 +119,18 @@ TEST_CASE("collisions")
     const Cell top = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand, Cell::Eraser);
     const Cell bottom = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand);
     const World world(1, { top, bottom });
-    const World result = simulateStep(world);
-    REQUIRE(world == result);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
+    REQUIRE(0 == result.first);
+    REQUIRE(world == result.second);
 }
 
 TEST_CASE("snow stops snow")
 {
     const World world(1, { Cell::Snow, Cell::Snow });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(1, { Cell::Snow, Cell::Snow });
-    REQUIRE(expected == result);
+    REQUIRE(0 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("snow stacks")
@@ -112,8 +138,9 @@ TEST_CASE("snow stacks")
     const World world(3, { Cell::Air, Cell::Snow, Cell::Air,
                              // below:
                              Cell::Air, Cell::Snow, Cell::Air });
-    const World result = simulateStep(world);
-    REQUIRE(world == result);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
+    REQUIRE(0 == result.first);
+    REQUIRE(world == result.second);
 }
 
 TEST_CASE("sand flows right")
@@ -121,11 +148,12 @@ TEST_CASE("sand flows right")
     const World world(2, { Cell::Sand, Cell::Air,
                              // below:
                              Cell::Sand, Cell::Air });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(2, { Cell::Air, Cell::Air,
                                 // below:
                                 Cell::Sand, Cell::Sand });
-    REQUIRE(expected == result);
+    REQUIRE(1 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("sand flows left")
@@ -133,12 +161,13 @@ TEST_CASE("sand flows left")
     const World world(2, { Cell::Air, Cell::Sand,
                              // below:
                              Cell::Air, Cell::Sand });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(2,
         { Cell::Air, Cell::Air,
             // below:
             Cell::Sand, Cell::Sand });
-    REQUIRE(expected == result);
+    REQUIRE(1 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("sand doesn't disappear")
@@ -146,11 +175,12 @@ TEST_CASE("sand doesn't disappear")
     const World world(3, { Cell::Sand, Cell::Sand, Cell::Sand,
                              // below:
                              Cell::Sand, Cell::Air, Cell::Air });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(3, { Cell::Sand, Cell::Air, Cell::Air,
                                 // below:
                                 Cell::Sand, Cell::Sand, Cell::Sand });
-    REQUIRE(expected == result);
+    REQUIRE(2 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("sand pile falls right")
@@ -208,9 +238,10 @@ TEST_CASE("eraser eats falling materials")
 {
     const Cell falling = GENERATE(Cell::Snow, Cell::Sand);
     const World world(1, { falling, Cell::Eraser });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(1, { Cell::Air, Cell::Eraser });
-    REQUIRE(expected == result);
+    REQUIRE(1 == result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("Printing a world")
