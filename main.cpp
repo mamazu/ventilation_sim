@@ -87,6 +87,8 @@ int main()
 
     SimulationSettings settings;
 
+    bool isDemoVisible = false;
+
     sf::Clock deltaClock;
     while (window.isOpen()) {
         sf::Event event;
@@ -155,7 +157,7 @@ int main()
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
-        renderUI(world, settings);
+        renderUI(world, settings, isDemoVisible);
 
         window.clear();
 

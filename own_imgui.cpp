@@ -3,9 +3,9 @@
 #include "imgui.h"
 #include <array>
 
-constexpr std::array<char*, 4> itemLabels{ "Air", "Snow", "Wall", "Sand" };
+constexpr std::array<char*, 4> itemLabels { "Air", "Snow", "Wall", "Sand" };
 
-void menuBar(World& world)
+void menuBar(World& world, bool& isDemoVisible)
 {
     if (!ImGui::BeginMainMenuBar()) {
         return;
@@ -20,6 +20,12 @@ void menuBar(World& world)
         }
         if (ImGui::MenuItem("Load", "Ctrl+O")) {
             loadWorldFromFile(world, "world.dat");
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("View")) {
+        if (ImGui::MenuItem("ImGui demo")) {
+            isDemoVisible = !isDemoVisible;
         }
         ImGui::EndMenu();
     }
@@ -61,12 +67,16 @@ void addSimulationSettingsNode(SimulationSettings& settings)
     ImGui::TreePop();
 }
 
-void renderUI(World& world, SimulationSettings& settings)
+void renderUI(World& world, SimulationSettings& settings, bool& isDemoVisible)
 {
-    menuBar(world);
+    menuBar(world, isDemoVisible);
 
     ImGui::Begin("Toolbox");
     addBrushTreeNode(settings);
     addSimulationSettingsNode(settings);
     ImGui::End();
+
+    if (isDemoVisible) {
+        ImGui::ShowDemoWindow(&isDemoVisible);
+    }
 }
