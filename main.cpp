@@ -124,23 +124,8 @@ int main()
         }
 
         if (isMouseLeftDown) {
-            float nextDot = 0;
-            for (ptrdiff_t y = -settings.brushSize; y < settings.brushSize; ++y) {
-                for (ptrdiff_t x = -settings.brushSize; x < settings.brushSize; ++x) {
-                    if (nextDot >= 1.0) {
-                        nextDot -= 1.0;
-                        const std::optional<size_t> index = getIndexFromCoordinates(Point(
-                                                                                        static_cast<ptrdiff_t>(mousePosition.x) + x,
-                                                                                        static_cast<ptrdiff_t>(mousePosition.y) + y),
-                            worldSize);
-                        if (index) {
-                            world.Cells[*index] = settings.currentMaterial;
-                        }
-                    }
-
-                    nextDot += settings.brushStrength;
-                }
-            }
+            const Point mouse = Point(mousePosition.x, mousePosition.y);
+            setRectangle(world, mouse, worldSize, settings);
         }
 
         const sf::Time startedStepping = worldStepClock.getElapsedTime();

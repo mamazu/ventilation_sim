@@ -1,4 +1,5 @@
 #pragma once
+#include "main.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <optional>
 #include <ostream>
@@ -29,3 +30,4 @@ std::ostream& operator<<(std::ostream& out, const World& value);
 
 std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Point worldSize);
 World simulateStep(const World& world);
+void setRectangle(World& world, const Point& center, const Point& worldSize, const SimulationSettings& settings);

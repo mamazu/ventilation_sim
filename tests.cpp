@@ -2,6 +2,43 @@
 #include "catch.hpp"
 #include "simulation.hpp"
 
+TEST_CASE("filling a rectangle with size 1")
+{
+   World world = { 
+       Cell::Air, Cell::Air,
+       Cell::Air, Cell::Air,
+    };
+
+    setRectangle(world, Point(0, 0), Point(2, 2), 1, Cell::Sand);
+
+    REQUIRE(world[0] == Cell::Sand);
+}
+
+TEST_CASE("filling a rectangle with size 2")
+{
+   World world = { 
+       Cell::Air, Cell::Air,
+       Cell::Air, Cell::Air,
+    };
+
+    setRectangle(world, Point(0, 0), Point(2, 2), 2, Cell::Sand);
+
+    for(size_t i = 0; i < 2 * 2; i++) {
+        REQUIRE(world[i] == Cell::Sand);
+    }
+}
+
+TEST_CASE("filling a bigger rectangle than the world")
+{
+   World world = { 
+       Cell::Air,
+    };
+
+    setRectangle(world, Point(0, 0), Point(1, 1), 5, Cell::Sand);
+
+    REQUIRE(world[0] == Cell::Sand);
+}
+
 TEST_CASE("empty world")
 {
     const World dummyWorld(Point(0, 0), Cell::Air);
