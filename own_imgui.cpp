@@ -34,23 +34,16 @@ void menuBar(World& world, bool& isDemoVisible)
 
 void addBrushTreeNode(SimulationSettings& settings)
 {
-    ImGui::SliderInt("Size", &settings.brushSize, 1, 100);
-
-    const char* currentLabel = itemLabels[static_cast<size_t>(settings.currentTool)];
-
-    if (ImGui::BeginCombo("Material", currentLabel)) {
-        for (size_t i = 0; i < itemLabels.size(); i++) {
-            bool isSelected = itemLabels[i] == currentLabel;
-            if (ImGui::Selectable(itemLabels[i], isSelected)) {
-                currentLabel = itemLabels[i];
-                settings.currentTool = static_cast<Cell>(i);
-            }
-            if (isSelected) {
-                ImGui::SetItemDefaultFocus();
-            }
+    for (size_t i = 0; i < itemLabels.size(); i++) {
+        if (ImGui::RadioButton(itemLabels[i], (settings.currentTool == static_cast<Cell>(i)))) {
+            settings.currentTool = static_cast<Cell>(i);
         }
-        ImGui::EndCombo();
+        if ((i + 1) < itemLabels.size()) {
+            ImGui::SameLine();
+        }
     }
+
+    ImGui::SliderInt("Size", &settings.brushSize, 1, 100);
 }
 
 void addSimulationSettingsNode(SimulationSettings& settings)
