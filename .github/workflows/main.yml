@@ -1,0 +1,36 @@
+name: CMake
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+
+      - name: Cache
+        id: "cache"
+        uses: actions/cache@v2.1.6
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: |
+            vcpkg/installed
+          key: "vcpkg-${{ hashFiles('**/step-2.bat') }}"
+
+      - name: Installing packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          .\\scripts\\step-1.bat
+          .\\scripts\\step-2.bat
+
+      - name: "Building the project"
+        run: ".\\scripts\\step-3.bat cmake" 
+        
+      - name: Running tests
+        run: |
+          cmake --build ..\\build_ventilation_sim;
+          ..\\build_ventilation_sim\\Debug\\tests.exe

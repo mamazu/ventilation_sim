@@ -1,0 +1,1 @@
+.\vcpkg\vcpkg.exe install imgui-sfml:x64-windows catch2:x64-windows benchmark:x64-windows || exit /B 1

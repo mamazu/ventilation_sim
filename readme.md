@@ -6,5 +6,4 @@ Check out vcpkg:
 
 # Visual Studio 2019
 
-* run `step-1.bat`
-* run `step-2.bat`
+* run `setup.bat`
