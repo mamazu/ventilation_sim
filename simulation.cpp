@@ -33,7 +33,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
             case Cell::Snow: {
                 const std::optional<size_t> belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldSize);
-                if (belowIndex && isPermissive((&front)[*belowIndex])) {
+                if (belowIndex && isPermissive((&front)[*belowIndex]) && isPermissive(newWorld[*belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowIndex] = cell;
                 } else {
@@ -46,13 +46,13 @@ World simulateStep(const Cell& front, const Point& worldSize)
                 const std::optional<size_t> belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldSize);
                 const std::optional<size_t> belowRightIndex = getIndexFromCoordinates(Point(x + 1, y + 1), worldSize);
                 const std::optional<size_t> belowLeftIndex = getIndexFromCoordinates(Point(x - 1, y + 1), worldSize);
-                if (belowIndex && isPermissive((&front)[*belowIndex])) {
+                if (belowIndex && isPermissive((&front)[*belowIndex]) && isPermissive(newWorld[*belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowIndex] = cell;
-                } else if (belowRightIndex && isPermissive((&front)[*belowRightIndex])) {
+                } else if (belowRightIndex && isPermissive((&front)[*belowRightIndex]) && isPermissive(newWorld[*belowRightIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowRightIndex] = cell;
-                } else if (belowLeftIndex && isPermissive((&front)[*belowLeftIndex])) {
+                } else if (belowLeftIndex && isPermissive((&front)[*belowLeftIndex]) && isPermissive(newWorld[*belowLeftIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowLeftIndex] = cell;
                 } else {
