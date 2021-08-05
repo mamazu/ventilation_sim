@@ -124,15 +124,21 @@ int main()
         }
 
         if (isMouseLeftDown) {
+            float nextDot = 0;
             for (ptrdiff_t y = -settings.brushSize; y < settings.brushSize; ++y) {
                 for (ptrdiff_t x = -settings.brushSize; x < settings.brushSize; ++x) {
-                    const std::optional<size_t> index = getIndexFromCoordinates(Point(
-                                                                                    static_cast<ptrdiff_t>(mousePosition.x) + x,
-                                                                                    static_cast<ptrdiff_t>(mousePosition.y) + y),
-                        worldSize);
-                    if (index) {
-                        world[*index] = settings.currentTool;
+                    if (nextDot >= 1.0) {
+                        nextDot -= 1.0;
+                        const std::optional<size_t> index = getIndexFromCoordinates(Point(
+                                                                                        static_cast<ptrdiff_t>(mousePosition.x) + x,
+                                                                                        static_cast<ptrdiff_t>(mousePosition.y) + y),
+                            worldSize);
+                        if (index) {
+                            world[*index] = settings.currentMaterial;
+                        }
                     }
+
+                    nextDot += settings.brushStrength;
                 }
             }
         }

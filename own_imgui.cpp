@@ -35,8 +35,8 @@ void menuBar(World& world, bool& isDemoVisible)
 void addBrushTreeNode(SimulationSettings& settings)
 {
     for (size_t i = 0; i < itemLabels.size(); i++) {
-        if (ImGui::RadioButton(itemLabels[i], (settings.currentTool == static_cast<Cell>(i)))) {
-            settings.currentTool = static_cast<Cell>(i);
+        if (ImGui::RadioButton(itemLabels[i], (settings.currentMaterial == static_cast<Cell>(i)))) {
+            settings.currentMaterial = static_cast<Cell>(i);
         }
         if ((i + 1) < itemLabels.size()) {
             ImGui::SameLine();
@@ -44,6 +44,7 @@ void addBrushTreeNode(SimulationSettings& settings)
     }
 
     ImGui::SliderInt("Size", &settings.brushSize, 1, 100);
+    ImGui::SliderFloat("Strength", &settings.brushStrength, 0.0, 1.0);
 }
 
 void addSimulationSettingsNode(SimulationSettings& settings)

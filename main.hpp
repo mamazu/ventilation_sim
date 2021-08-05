@@ -1,14 +1,15 @@
 #pragma once
 
+#include "simulation.hpp"
 #include <string>
 #include <vector>
-#include "simulation.hpp"
 
 struct SimulationSettings {
     int timeBetweenStepsInMilliseconds = 3;
     bool isPaused = false;
     int brushSize = 20;
-    Cell currentTool = Cell::Snow;
+    Cell currentMaterial = Cell::Snow;
+    float brushStrength = 1.0;
 };
 
 void clearWorld(World& world);
