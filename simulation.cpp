@@ -18,11 +18,11 @@ bool isPermissive(const Cell& cell)
 
 World simulateStep(const Cell& front, const Point& worldSize)
 {
-    const size_t worldWidth = worldSize.x;
-    const size_t worldHeight = worldSize.y;
+    const ptrdiff_t worldWidth = worldSize.x;
+    const ptrdiff_t worldHeight = worldSize.y;
     std::vector<Cell> newWorld(worldWidth * worldHeight);
-    for (size_t y = 0; y < worldHeight; ++y) {
-        for (size_t x = 0; x < worldWidth; ++x) {
+    for (ptrdiff_t y = (worldHeight - 1); y >= 0; --y) {
+        for (ptrdiff_t x = 0; x < worldWidth; ++x) {
             // index has to exist because x and y are already constrained
             const size_t cellIndex = *getIndexFromCoordinates(Point(x, y), worldSize);
 
@@ -33,7 +33,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
             case Cell::Snow: {
                 const std::optional<size_t> belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldSize);
-                if (belowIndex && isPermissive((&front)[*belowIndex]) && isPermissive(newWorld[*belowIndex])) {
+                if (belowIndex && isPermissive(newWorld[*belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowIndex] = cell;
                 } else {
@@ -46,13 +46,13 @@ World simulateStep(const Cell& front, const Point& worldSize)
                 const std::optional<size_t> belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldSize);
                 const std::optional<size_t> belowRightIndex = getIndexFromCoordinates(Point(x + 1, y + 1), worldSize);
                 const std::optional<size_t> belowLeftIndex = getIndexFromCoordinates(Point(x - 1, y + 1), worldSize);
-                if (belowIndex && isPermissive((&front)[*belowIndex]) && isPermissive(newWorld[*belowIndex])) {
+                if (belowIndex && isPermissive(newWorld[*belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowIndex] = cell;
-                } else if (belowRightIndex && isPermissive((&front)[*belowRightIndex]) && isPermissive(newWorld[*belowRightIndex])) {
+                } else if (belowRightIndex && isPermissive(newWorld[*belowRightIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowRightIndex] = cell;
-                } else if (belowLeftIndex && isPermissive((&front)[*belowLeftIndex]) && isPermissive(newWorld[*belowLeftIndex])) {
+                } else if (belowLeftIndex && isPermissive(newWorld[*belowLeftIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowLeftIndex] = cell;
                 } else {

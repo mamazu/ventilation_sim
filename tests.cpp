@@ -35,12 +35,12 @@ TEST_CASE("falling materials")
     REQUIRE(expected == result);
 }
 
-TEST_CASE("falling materials leave gaps")
+TEST_CASE("falling materials leave no gaps")
 {
     const Cell material = GENERATE(Cell::Snow, Cell::Sand);
     std::vector<Cell> world = { material, material, Cell::Air };
     const std::vector<Cell> result = simulateStep(world.front(), Point(1, 3));
-    const std::vector<Cell> expected = { material, Cell::Air, material };
+    const std::vector<Cell> expected = { Cell::Air, material, material };
     REQUIRE(expected == result);
 }
 
