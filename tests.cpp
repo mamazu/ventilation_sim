@@ -116,6 +116,22 @@ TEST_CASE("sand flows left")
     REQUIRE(expected == result);
 }
 
+TEST_CASE("sand doesn't disappear")
+{
+    const std::vector<Cell> world = {
+        Cell::Sand, Cell::Sand, Cell::Sand,
+        // below:
+        Cell::Sand, Cell::Air, Cell::Air
+    };
+    const std::vector<Cell> result = simulateStep(world.front(), Point(3, 2));
+    const std::vector<Cell> expected = {
+        Cell::Air, Cell::Air, Cell::Sand,
+        // below:
+        Cell::Sand, Cell::Sand, Cell::Sand
+    };
+    REQUIRE(expected == result);
+}
+
 TEST_CASE("getIndexFromCoordinates out of bounds")
 {
     REQUIRE(0 == getIndexFromCoordinates(Point(0, 0), Point(1, 1)));
