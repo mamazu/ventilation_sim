@@ -45,21 +45,29 @@ World simulateStep(const Cell& front, const Point& worldSize)
                 // we don't use std::optional here due to very bad Debug performance under MSVC
                 const size_t belowIndex = (cellIndex + worldWidth);
                 const bool hasBelow = (belowIndex < newWorld.size());
+                if (hasBelow) {
+                    if (isPermissive(newWorld[belowIndex])) {
+                        newWorld[cellIndex] = Cell::Air;
+                        newWorld[belowIndex] = cell;
+                        break;
+                    }
 
-                const std::optional<size_t> belowRightIndex = (hasBelow && (x < (worldWidth - 1))) ? (belowIndex + 1) : std::optional<size_t>();
-                const std::optional<size_t> belowLeftIndex = (hasBelow && (x > 0)) ? (belowIndex - 1) : std::optional<size_t>();
-                if (hasBelow && isPermissive(newWorld[belowIndex])) {
-                    newWorld[cellIndex] = Cell::Air;
-                    newWorld[belowIndex] = cell;
-                } else if (belowRightIndex && isPermissive(newWorld[*belowRightIndex])) {
-                    newWorld[cellIndex] = Cell::Air;
-                    newWorld[*belowRightIndex] = cell;
-                } else if (belowLeftIndex && isPermissive(newWorld[*belowLeftIndex])) {
-                    newWorld[cellIndex] = Cell::Air;
-                    newWorld[*belowLeftIndex] = cell;
-                } else {
-                    newWorld[cellIndex] = cell;
+                    const std::optional<size_t> belowRightIndex = (x < (worldWidth - 1)) ? (belowIndex + 1) : std::optional<size_t>();
+                    if (belowRightIndex && isPermissive(newWorld[*belowRightIndex])) {
+                        newWorld[cellIndex] = Cell::Air;
+                        newWorld[*belowRightIndex] = cell;
+                        break;
+                    }
+
+                    const std::optional<size_t> belowLeftIndex = (x > 0) ? (belowIndex - 1) : std::optional<size_t>();
+                    if (belowLeftIndex && isPermissive(newWorld[*belowLeftIndex])) {
+                        newWorld[cellIndex] = Cell::Air;
+                        newWorld[*belowLeftIndex] = cell;
+                        break;
+                    }
                 }
+
+                newWorld[cellIndex] = cell;
                 break;
             }
 
