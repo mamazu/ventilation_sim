@@ -53,10 +53,13 @@ World simulateStep(const Cell& front, const Point& worldSize)
             }
 
             case Cell::Sand: {
+                // we don't use std::optional here due to very bad Debug performance under MSVC
                 const size_t belowIndex = (cellIndex + worldWidth);
-                const std::optional<size_t> belowRightIndex = getIndexFromCoordinates(Point(x + 1, y + 1), worldSize);
-                const std::optional<size_t> belowLeftIndex = getIndexFromCoordinates(Point(x - 1, y + 1), worldSize);
-                if ((belowIndex < newWorld.size()) && isPermissive(newWorld[belowIndex])) {
+                const bool hasBelow = (belowIndex < newWorld.size());
+
+                const std::optional<size_t> belowRightIndex = (hasBelow && (x < (worldWidth - 1))) ? (belowIndex + 1) : std::optional<size_t>();
+                const std::optional<size_t> belowLeftIndex = (hasBelow && (x > 0)) ? (belowIndex - 1) : std::optional<size_t>();
+                if (hasBelow && isPermissive(newWorld[belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[belowIndex] = cell;
                 } else if (belowRightIndex && isPermissive(newWorld[*belowRightIndex])) {
