@@ -20,8 +20,12 @@ World simulateStep(const Cell& front, const Point& worldSize)
 {
     const ptrdiff_t worldWidth = worldSize.x;
     const ptrdiff_t worldHeight = worldSize.y;
-    std::vector<Cell> newWorld(worldWidth * worldHeight);
-    size_t cellIndex = newWorld.size();
+    std::vector<Cell> result(worldWidth * worldHeight);
+
+    // std::vector::operator[] is very expensive on Debug under MSVC, so we use this pointer instead
+    Cell* const newWorld = result.data();
+
+    size_t cellIndex = result.size();
     for (ptrdiff_t y = (worldHeight - 1); y >= 0; --y) {
         for (ptrdiff_t x = (worldWidth - 1); x >= 0; --x) {
             --cellIndex;
@@ -44,7 +48,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
             case Cell::Sand: {
                 // we don't use std::optional here due to very bad Debug performance under MSVC
                 const size_t belowIndex = (cellIndex + worldWidth);
-                const bool hasBelow = (belowIndex < newWorld.size());
+                const bool hasBelow = (belowIndex < result.size());
                 if (hasBelow) {
                     if (isPermissive(newWorld[belowIndex])) {
                         newWorld[cellIndex] = Cell::Air;
@@ -77,5 +81,5 @@ World simulateStep(const Cell& front, const Point& worldSize)
             }
         }
     }
-    return newWorld;
+    return result;
 }
