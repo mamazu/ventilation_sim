@@ -11,17 +11,6 @@ std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Po
     return (coordinates.y * worldSize.x) + coordinates.x;
 }
 
-ptrdiff_t getIndexFromCoordinates2(const Point& coordinates, const Point worldSize)
-{
-    if ((coordinates.x < 0) || (coordinates.x >= worldSize.x)) {
-        return -1;
-    }
-    if ((coordinates.y < 0) || (coordinates.y >= worldSize.y)) {
-        return -1;
-    }
-    return (coordinates.y * worldSize.x) + coordinates.x;
-}
-
 bool isPermissive(const Cell& cell)
 {
     return cell == Cell::Air;
