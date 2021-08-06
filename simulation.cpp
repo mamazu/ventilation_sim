@@ -67,7 +67,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
                     if (x > 0) {
                         const size_t belowLeftIndex = (belowIndex - 1);
-                        if (belowLeftIndex && isPermissive(newWorld[belowLeftIndex])) {
+                        if (isPermissive(newWorld[belowLeftIndex])) {
                             newWorld[cellIndex] = Cell::Air;
                             newWorld[belowLeftIndex] = cell;
                             break;
