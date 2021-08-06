@@ -30,10 +30,10 @@ World simulateStep(const Cell& front, const Point& worldSize)
                 continue;
 
             case Cell::Snow: {
-                const std::optional<size_t> belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldSize);
-                if (belowIndex && (newWorld[*belowIndex] == Cell::Air)) {
+                const size_t belowIndex = (cellIndex + worldWidth);
+                if ((belowIndex < result.size()) && (newWorld[belowIndex] == Cell::Air)) {
                     newWorld[cellIndex] = Cell::Air;
-                    newWorld[*belowIndex] = cell;
+                    newWorld[belowIndex] = cell;
                 } else {
                     newWorld[cellIndex] = cell;
                 }
@@ -41,10 +41,8 @@ World simulateStep(const Cell& front, const Point& worldSize)
             }
 
             case Cell::Sand: {
-                // we don't use std::optional here due to very bad Debug performance under MSVC
                 const size_t belowIndex = (cellIndex + worldWidth);
-                const bool hasBelow = (belowIndex < result.size());
-                if (hasBelow) {
+                if (belowIndex < result.size()) {
                     if (newWorld[belowIndex] == Cell::Air) {
                         newWorld[cellIndex] = Cell::Air;
                         newWorld[belowIndex] = cell;
