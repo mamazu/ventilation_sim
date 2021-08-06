@@ -12,6 +12,10 @@ add_definitions(/w44062)
 # make warnings errors
 add_definitions(/WX)
 
+# inline even in Debug builds to improve performance
+# https://docs.microsoft.com/en-us/cpp/build/reference/ob-inline-function-expansion?redirectedfrom=MSDN&view=msvc-160
+add_definitions(/Ob3)
+
 add_library(ventilation STATIC simulation.hpp simulation.cpp)
 find_package(SFML COMPONENTS graphics REQUIRED)
 target_link_libraries(ventilation PUBLIC sfml-graphics)
