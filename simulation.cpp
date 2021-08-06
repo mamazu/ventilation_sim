@@ -56,18 +56,22 @@ World simulateStep(const Cell& front, const Point& worldSize)
                         break;
                     }
 
-                    const std::optional<size_t> belowRightIndex = (x < (worldWidth - 1)) ? (belowIndex + 1) : std::optional<size_t>();
-                    if (belowRightIndex && isPermissive(newWorld[*belowRightIndex])) {
-                        newWorld[cellIndex] = Cell::Air;
-                        newWorld[*belowRightIndex] = cell;
-                        break;
+                    if (x < (worldWidth - 1)) {
+                        const size_t belowRightIndex = (belowIndex + 1);
+                        if (isPermissive(newWorld[belowRightIndex])) {
+                            newWorld[cellIndex] = Cell::Air;
+                            newWorld[belowRightIndex] = cell;
+                            break;
+                        }
                     }
 
-                    const std::optional<size_t> belowLeftIndex = (x > 0) ? (belowIndex - 1) : std::optional<size_t>();
-                    if (belowLeftIndex && isPermissive(newWorld[*belowLeftIndex])) {
-                        newWorld[cellIndex] = Cell::Air;
-                        newWorld[*belowLeftIndex] = cell;
-                        break;
+                    if (x > 0) {
+                        const size_t belowLeftIndex = (belowIndex - 1);
+                        if (belowLeftIndex && isPermissive(newWorld[belowLeftIndex])) {
+                            newWorld[cellIndex] = Cell::Air;
+                            newWorld[belowLeftIndex] = cell;
+                            break;
+                        }
                     }
                 }
 
