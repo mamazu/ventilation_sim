@@ -20,24 +20,29 @@ char CellToChar(const Cell value)
 
 World::World(const Point& size, Cell defaultMaterial)
     : Cells(size.x * size.y, defaultMaterial)
+    , Width(size.x)
 {
 }
 
 World::World(size_t width, std::initializer_list<Cell> cells)
     : Cells(cells)
+    , Width(width)
 {
     assert((Cells.size() % width) == 0);
 }
 
 bool operator==(const World& left, const World& right) noexcept
 {
-    return (left.Cells == right.Cells);
+    return (left.Cells == right.Cells) && (left.Width == right.Width);
 }
 
 std::ostream& operator<<(std::ostream& out, const World& value)
 {
-    for (const Cell cell : value.Cells) {
-        out << CellToChar(cell);
+    for (size_t i = 0; i < value.Cells.size(); i++) {
+        out << CellToChar(value.Cells[i]);
+        if ((i != value.Cells.size() - 1) && (i % value.Width == value.Width - 1)) {
+            out << '\n';
+        }
     }
     return out;
 }

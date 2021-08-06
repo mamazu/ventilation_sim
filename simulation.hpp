@@ -17,6 +17,7 @@ using Point = sf::Vector2<ptrdiff_t>;
 
 struct World {
     std::vector<Cell> Cells;
+    size_t Width;
 
     World(const Point& size, Cell defaultMaterial);
     World(size_t width, std::initializer_list<Cell> cells);

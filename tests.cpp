@@ -90,7 +90,7 @@ TEST_CASE("sand flows right")
         Cell::Sand, Cell::Air
     };
     const World result = simulateStep(world.front(), Point(2, 2));
-    const World expected(1, { Cell::Air, Cell::Air,
+    const World expected(2, { Cell::Air, Cell::Air,
                                 // below:
                                 Cell::Sand, Cell::Sand });
     REQUIRE(expected == result);
@@ -123,6 +123,35 @@ TEST_CASE("sand doesn't disappear")
                                 // below:
                                 Cell::Sand, Cell::Sand, Cell::Sand });
     REQUIRE(expected == result);
+}
+
+TEST_CASE("Printing a world")
+{
+    std::ostringstream out;
+    const World world(3, { Cell::Sand, Cell::Sand, Cell::Sand,
+                             // below:
+                             Cell::Sand, Cell::Air, Cell::Air });
+    out << world;
+
+    REQUIRE(out.str() == "SSS\nS__");
+}
+
+TEST_CASE("Printing an empty world")
+{
+    std::ostringstream out;
+    const World world(3, {});
+    out << world;
+
+    REQUIRE(out.str() == "");
+}
+
+TEST_CASE("Printing a world (width = 1)")
+{
+    std::ostringstream out;
+    const World world(1, { Cell::Air, Cell::Air });
+    out << world;
+
+    REQUIRE(out.str() == "_\n_");
 }
 
 TEST_CASE("getIndexFromCoordinates out of bounds")
