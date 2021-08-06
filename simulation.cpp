@@ -58,11 +58,14 @@ std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Po
     return (coordinates.y * worldSize.x) + coordinates.x;
 }
 
-World simulateStep(const Cell& front, const Point& worldSize)
+World simulateStep(const World& world)
 {
-    const ptrdiff_t worldWidth = worldSize.x;
-    const ptrdiff_t worldHeight = worldSize.y;
-    World result(worldSize, Cell::Air);
+    const ptrdiff_t worldWidth = world.Width;
+    if (worldWidth == 0) {
+        return world;
+    }
+    const ptrdiff_t worldHeight = world.Cells.size() / world.Width;
+    World result(Point { worldWidth, worldHeight }, Cell::Air);
 
     // std::vector::operator[] is very expensive on Debug under MSVC, so we use this pointer instead
     Cell* const newWorld = result.Cells.data();
@@ -71,7 +74,8 @@ World simulateStep(const Cell& front, const Point& worldSize)
     for (ptrdiff_t y = (worldHeight - 1); y >= 0; --y) {
         for (ptrdiff_t x = (worldWidth - 1); x >= 0; --x) {
             --cellIndex;
-            const Cell& cell = (&front)[cellIndex];
+            // std::vector::operator[] is very expensive on Debug under MSVC, so we use this pointer instead
+            const Cell& cell = world.Cells.data()[cellIndex];
             switch (cell) {
             case Cell::Air:
                 continue;

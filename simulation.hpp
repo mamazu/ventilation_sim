@@ -27,4 +27,4 @@ bool operator==(const World& left, const World& right) noexcept;
 std::ostream& operator<<(std::ostream& out, const World& value);
 
 std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Point worldSize);
-World simulateStep(const Cell& front, const Point& worldSize);
+World simulateStep(const World& world);

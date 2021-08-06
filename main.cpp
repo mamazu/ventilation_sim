@@ -153,7 +153,7 @@ int main()
             }
 
             if (!settings.isPaused) {
-                World newWorld = simulateStep(world.Cells.front(), worldSize);
+                World newWorld = simulateStep(world);
                 world = std::move(newWorld);
             }
             nextWorldStep += sf::milliseconds(settings.timeBetweenStepsInMilliseconds);
