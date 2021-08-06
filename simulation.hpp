@@ -14,5 +14,4 @@ using World = std::vector<Cell>;
 using Point = sf::Vector2<ptrdiff_t>;
 
 std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Point worldSize);
-bool isPermissive(const Cell& cell);
 World simulateStep(const Cell& front, const Point& worldSize);

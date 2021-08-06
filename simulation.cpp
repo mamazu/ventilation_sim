@@ -11,11 +11,6 @@ std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Po
     return (coordinates.y * worldSize.x) + coordinates.x;
 }
 
-bool isPermissive(const Cell& cell)
-{
-    return cell == Cell::Air;
-}
-
 World simulateStep(const Cell& front, const Point& worldSize)
 {
     const ptrdiff_t worldWidth = worldSize.x;
@@ -36,7 +31,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
             case Cell::Snow: {
                 const std::optional<size_t> belowIndex = getIndexFromCoordinates(Point(x, y + 1), worldSize);
-                if (belowIndex && isPermissive(newWorld[*belowIndex])) {
+                if (belowIndex && (newWorld[*belowIndex] == Cell::Air)) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[*belowIndex] = cell;
                 } else {
@@ -50,7 +45,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
                 const size_t belowIndex = (cellIndex + worldWidth);
                 const bool hasBelow = (belowIndex < result.size());
                 if (hasBelow) {
-                    if (isPermissive(newWorld[belowIndex])) {
+                    if (newWorld[belowIndex] == Cell::Air) {
                         newWorld[cellIndex] = Cell::Air;
                         newWorld[belowIndex] = cell;
                         break;
@@ -58,7 +53,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
                     if (x < (worldWidth - 1)) {
                         const size_t belowRightIndex = (belowIndex + 1);
-                        if (isPermissive(newWorld[belowRightIndex])) {
+                        if (newWorld[belowRightIndex] == Cell::Air) {
                             newWorld[cellIndex] = Cell::Air;
                             newWorld[belowRightIndex] = cell;
                             break;
@@ -67,7 +62,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
                     if (x > 0) {
                         const size_t belowLeftIndex = (belowIndex - 1);
-                        if (isPermissive(newWorld[belowLeftIndex])) {
+                        if (newWorld[belowLeftIndex] == Cell::Air) {
                             newWorld[cellIndex] = Cell::Air;
                             newWorld[belowLeftIndex] = cell;
                             break;
