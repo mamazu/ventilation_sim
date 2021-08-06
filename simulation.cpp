@@ -1,4 +1,5 @@
 #include "simulation.hpp"
+#include <array>
 #include <cassert>
 
 namespace {
@@ -136,22 +137,31 @@ World simulateStep(const World& world)
                         break;
                     }
 
-                    if (x < (worldWidth - 1)) {
-                        const size_t belowRightIndex = (belowIndex + 1);
-                        if (canFallInto(newWorld[belowRightIndex])) {
+                    const std::array<bool, 2> isWithinBounds = {
+                        (x < (worldWidth - 1)),
+                        (x > 0)
+                    };
+
+                    static constexpr std::array<ptrdiff_t, 2> horizontalOffsets = {
+                        1,
+                        -1
+                    };
+
+                    bool fellToTheSide = false;
+                    for (size_t i = 0; i < horizontalOffsets.size(); ++i) {
+                        if (!isWithinBounds[i]) {
+                            continue;
+                        }
+                        const size_t belowLeftRightIndex = (belowIndex + horizontalOffsets[i]);
+                        if (canFallInto(newWorld[belowLeftRightIndex])) {
                             newWorld[cellIndex] = Cell::Air;
-                            newWorld[belowRightIndex] = fall(cell, newWorld[belowRightIndex]);
+                            newWorld[belowLeftRightIndex] = fall(cell, newWorld[belowLeftRightIndex]);
+                            fellToTheSide = true;
                             break;
                         }
                     }
-
-                    if (x > 0) {
-                        const size_t belowLeftIndex = (belowIndex - 1);
-                        if (canFallInto(newWorld[belowLeftIndex])) {
-                            newWorld[cellIndex] = Cell::Air;
-                            newWorld[belowLeftIndex] = fall(cell, newWorld[belowLeftIndex]);
-                            break;
-                        }
+                    if (fellToTheSide) {
+                        break;
                     }
                 }
 
