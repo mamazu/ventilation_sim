@@ -1,4 +1,46 @@
 #include "simulation.hpp"
+#include <cassert>
+
+namespace {
+char CellToChar(const Cell value)
+{
+    switch (value) {
+    case Cell::Air:
+        return '_';
+    case Cell::Snow:
+        return '*';
+    case Cell::Wall:
+        return 'W';
+    case Cell::Sand:
+        return 'S';
+    }
+    VENT_UNREACHABLE();
+}
+}
+
+World::World(const Point& size, Cell defaultMaterial)
+    : Cells(size.x * size.y, defaultMaterial)
+{
+}
+
+World::World(size_t width, std::initializer_list<Cell> cells)
+    : Cells(cells)
+{
+    assert((Cells.size() % width) == 0);
+}
+
+bool operator==(const World& left, const World& right) noexcept
+{
+    return (left.Cells == right.Cells);
+}
+
+std::ostream& operator<<(std::ostream& out, const World& value)
+{
+    for (const Cell cell : value.Cells) {
+        out << CellToChar(cell);
+    }
+    return out;
+}
 
 std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Point worldSize)
 {
@@ -15,12 +57,12 @@ World simulateStep(const Cell& front, const Point& worldSize)
 {
     const ptrdiff_t worldWidth = worldSize.x;
     const ptrdiff_t worldHeight = worldSize.y;
-    std::vector<Cell> result(worldWidth * worldHeight);
+    World result(worldSize, Cell::Air);
 
     // std::vector::operator[] is very expensive on Debug under MSVC, so we use this pointer instead
-    Cell* const newWorld = result.data();
+    Cell* const newWorld = result.Cells.data();
 
-    size_t cellIndex = result.size();
+    size_t cellIndex = result.Cells.size();
     for (ptrdiff_t y = (worldHeight - 1); y >= 0; --y) {
         for (ptrdiff_t x = (worldWidth - 1); x >= 0; --x) {
             --cellIndex;
@@ -31,7 +73,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
             case Cell::Snow: {
                 const size_t belowIndex = (cellIndex + worldWidth);
-                if ((belowIndex < result.size()) && (newWorld[belowIndex] == Cell::Air)) {
+                if ((belowIndex < result.Cells.size()) && (newWorld[belowIndex] == Cell::Air)) {
                     newWorld[cellIndex] = Cell::Air;
                     newWorld[belowIndex] = cell;
                 } else {
@@ -42,7 +84,7 @@ World simulateStep(const Cell& front, const Point& worldSize)
 
             case Cell::Sand: {
                 const size_t belowIndex = (cellIndex + worldWidth);
-                if (belowIndex < result.size()) {
+                if (belowIndex < result.Cells.size()) {
                     if (newWorld[belowIndex] == Cell::Air) {
                         newWorld[cellIndex] = Cell::Air;
                         newWorld[belowIndex] = cell;

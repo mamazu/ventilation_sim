@@ -4,9 +4,9 @@
 static void BM_simulateStep(benchmark::State& state)
 {
     const Point worldSize(500, 500);
-    World input(worldSize.x * worldSize.y, Cell::Snow);
+    World input(worldSize, Cell::Snow);
     for (auto _ : state) {
-        benchmark::DoNotOptimize(simulateStep(input.front(), worldSize));
+        benchmark::DoNotOptimize(simulateStep(input.Cells.front(), worldSize));
     }
 }
 BENCHMARK(BM_simulateStep)->Unit(benchmark::kMillisecond);

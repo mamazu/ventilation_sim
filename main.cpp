@@ -13,8 +13,6 @@
 #include <fstream>
 #include <iostream>
 
-#define VENT_UNREACHABLE() __assume(false)
-
 sf::Color renderCell(const Cell& cell)
 {
     switch (cell) {
@@ -51,19 +49,19 @@ void renderWorld(sf::Image& into, const Cell& front, const Point& worldSize)
 
 void clearWorld(World& world)
 {
-    std::fill(world.begin(), world.end(), Cell::Air);
+    std::fill(world.Cells.begin(), world.Cells.end(), Cell::Air);
 }
 
 void saveWorldToFile(const World& world, const std::string& fileName)
 {
     std::ofstream file(fileName, std::ofstream::binary);
-    file.write(reinterpret_cast<const char*>(world.data()), sizeof(Cell) * world.size());
+    file.write(reinterpret_cast<const char*>(world.Cells.data()), sizeof(Cell) * world.Cells.size());
 }
 
 void loadWorldFromFile(World& world, const std::string& fileName)
 {
     std::ifstream file(fileName, std::ifstream::binary);
-    file.read(reinterpret_cast<char*>(world.data()), sizeof(Cell) * world.size());
+    file.read(reinterpret_cast<char*>(world.Cells.data()), sizeof(Cell) * world.Cells.size());
 }
 
 int main()
@@ -74,7 +72,7 @@ int main()
 
     const Point worldSize(window.getSize().x, window.getSize().y);
 
-    World world(worldSize.x * worldSize.y);
+    World world(worldSize, Cell::Air);
 
     sf::Image worldImage;
     worldImage.create(static_cast<unsigned>(worldSize.x), static_cast<unsigned>(worldSize.y));
@@ -134,7 +132,7 @@ int main()
                                                                                         static_cast<ptrdiff_t>(mousePosition.y) + y),
                             worldSize);
                         if (index) {
-                            world[*index] = settings.currentMaterial;
+                            world.Cells[*index] = settings.currentMaterial;
                         }
                     }
 
@@ -155,7 +153,7 @@ int main()
             }
 
             if (!settings.isPaused) {
-                World newWorld = simulateStep(world.front(), worldSize);
+                World newWorld = simulateStep(world.Cells.front(), worldSize);
                 world = std::move(newWorld);
             }
             nextWorldStep += sf::milliseconds(settings.timeBetweenStepsInMilliseconds);
@@ -167,7 +165,7 @@ int main()
 
         window.clear();
 
-        renderWorld(worldImage, world.front(), worldSize);
+        renderWorld(worldImage, world.Cells.front(), worldSize);
 
         sf::Texture worldTexture;
         if (!worldTexture.loadFromImage(worldImage)) {
