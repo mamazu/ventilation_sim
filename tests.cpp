@@ -125,7 +125,7 @@ TEST_CASE("sand doesn't disappear")
     };
     const std::vector<Cell> result = simulateStep(world.front(), Point(3, 2));
     const std::vector<Cell> expected = {
-        Cell::Air, Cell::Air, Cell::Sand,
+        Cell::Sand, Cell::Air, Cell::Air,
         // below:
         Cell::Sand, Cell::Sand, Cell::Sand
     };

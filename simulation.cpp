@@ -11,6 +11,17 @@ std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Po
     return (coordinates.y * worldSize.x) + coordinates.x;
 }
 
+ptrdiff_t getIndexFromCoordinates2(const Point& coordinates, const Point worldSize)
+{
+    if ((coordinates.x < 0) || (coordinates.x >= worldSize.x)) {
+        return -1;
+    }
+    if ((coordinates.y < 0) || (coordinates.y >= worldSize.y)) {
+        return -1;
+    }
+    return (coordinates.y * worldSize.x) + coordinates.x;
+}
+
 bool isPermissive(const Cell& cell)
 {
     return cell == Cell::Air;
@@ -21,11 +32,10 @@ World simulateStep(const Cell& front, const Point& worldSize)
     const ptrdiff_t worldWidth = worldSize.x;
     const ptrdiff_t worldHeight = worldSize.y;
     std::vector<Cell> newWorld(worldWidth * worldHeight);
+    size_t cellIndex = newWorld.size();
     for (ptrdiff_t y = (worldHeight - 1); y >= 0; --y) {
-        for (ptrdiff_t x = 0; x < worldWidth; ++x) {
-            // index has to exist because x and y are already constrained
-            const size_t cellIndex = *getIndexFromCoordinates(Point(x, y), worldSize);
-
+        for (ptrdiff_t x = (worldWidth - 1); x >= 0; --x) {
+            --cellIndex;
             const Cell& cell = (&front)[cellIndex];
             switch (cell) {
             case Cell::Air:
