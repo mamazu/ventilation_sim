@@ -10,7 +10,8 @@ enum class Cell : char {
     Air,
     Snow,
     Wall,
-    Sand
+    Sand,
+    Eraser
 };
 
 using Point = sf::Vector2<ptrdiff_t>;

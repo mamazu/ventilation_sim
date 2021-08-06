@@ -13,6 +13,8 @@ char CellToChar(const Cell value)
         return 'W';
     case Cell::Sand:
         return 'S';
+    case Cell::Eraser:
+        return 'E';
     }
     VENT_UNREACHABLE();
 }
@@ -58,6 +60,40 @@ std::optional<size_t> getIndexFromCoordinates(const Point& coordinates, const Po
     return (coordinates.y * worldSize.x) + coordinates.x;
 }
 
+namespace {
+bool canFallInto(const Cell into)
+{
+    switch (into) {
+    case Cell::Air:
+    case Cell::Eraser:
+        return true;
+    case Cell::Snow:
+    case Cell::Sand:
+    case Cell::Wall:
+        return false;
+    }
+    VENT_UNREACHABLE();
+}
+
+[[nodiscard]] Cell fall(const Cell top, const Cell bottom)
+{
+    assert(canFallInto(bottom));
+    switch (bottom) {
+    case Cell::Air:
+        return top;
+
+    case Cell::Eraser:
+        return bottom;
+
+    case Cell::Snow:
+    case Cell::Sand:
+    case Cell::Wall:
+        VENT_UNREACHABLE();
+    }
+    VENT_UNREACHABLE();
+}
+}
+
 World simulateStep(const World& world)
 {
     const ptrdiff_t worldWidth = world.Width;
@@ -82,9 +118,9 @@ World simulateStep(const World& world)
 
             case Cell::Snow: {
                 const size_t belowIndex = (cellIndex + worldWidth);
-                if ((belowIndex < result.Cells.size()) && (newWorld[belowIndex] == Cell::Air)) {
+                if ((belowIndex < result.Cells.size()) && canFallInto(newWorld[belowIndex])) {
                     newWorld[cellIndex] = Cell::Air;
-                    newWorld[belowIndex] = cell;
+                    newWorld[belowIndex] = fall(cell, newWorld[belowIndex]);
                 } else {
                     newWorld[cellIndex] = cell;
                 }
@@ -94,26 +130,26 @@ World simulateStep(const World& world)
             case Cell::Sand: {
                 const size_t belowIndex = (cellIndex + worldWidth);
                 if (belowIndex < result.Cells.size()) {
-                    if (newWorld[belowIndex] == Cell::Air) {
+                    if (canFallInto(newWorld[belowIndex])) {
                         newWorld[cellIndex] = Cell::Air;
-                        newWorld[belowIndex] = cell;
+                        newWorld[belowIndex] = fall(cell, newWorld[belowIndex]);
                         break;
                     }
 
                     if (x < (worldWidth - 1)) {
                         const size_t belowRightIndex = (belowIndex + 1);
-                        if (newWorld[belowRightIndex] == Cell::Air) {
+                        if (canFallInto(newWorld[belowRightIndex])) {
                             newWorld[cellIndex] = Cell::Air;
-                            newWorld[belowRightIndex] = cell;
+                            newWorld[belowRightIndex] = fall(cell, newWorld[belowRightIndex]);
                             break;
                         }
                     }
 
                     if (x > 0) {
                         const size_t belowLeftIndex = (belowIndex - 1);
-                        if (newWorld[belowLeftIndex] == Cell::Air) {
+                        if (canFallInto(newWorld[belowLeftIndex])) {
                             newWorld[cellIndex] = Cell::Air;
-                            newWorld[belowLeftIndex] = cell;
+                            newWorld[belowLeftIndex] = fall(cell, newWorld[belowLeftIndex]);
                             break;
                         }
                     }
@@ -124,6 +160,7 @@ World simulateStep(const World& world)
             }
 
             case Cell::Wall:
+            case Cell::Eraser:
                 newWorld[cellIndex] = cell;
                 break;
             }

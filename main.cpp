@@ -24,6 +24,8 @@ sf::Color renderCell(const Cell& cell)
         return sf::Color(128, 128, 128, 255);
     case Cell::Sand:
         return sf::Color(180, 110, 0, 255);
+    case Cell::Eraser:
+        return sf::Color(255, 0, 0, 255);
     }
     VENT_UNREACHABLE();
 }

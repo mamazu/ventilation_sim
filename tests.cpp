@@ -4,7 +4,7 @@
 
 TEST_CASE("empty world")
 {
-    World dummyWorld(Point(0, 0), Cell::Air);
+    const World dummyWorld(Point(0, 0), Cell::Air);
     const World result = simulateStep(dummyWorld);
     const World expected(Point(0, 0), Cell::Air);
     REQUIRE(expected == result);
@@ -12,24 +12,24 @@ TEST_CASE("empty world")
 
 TEST_CASE("simplest non-empty world")
 {
-    World world(1, { Cell::Air });
+    const World world(1, { Cell::Air });
     const World result = simulateStep(world);
     const World expected(1, { Cell::Air });
     REQUIRE(expected == result);
 }
 
-TEST_CASE("wall does not fall")
+TEST_CASE("some materials do not fall")
 {
-    World world(1, { Cell::Wall, Cell::Air });
+    const Cell notFalling = GENERATE(Cell::Wall, Cell::Eraser);
+    const World world(1, { notFalling, Cell::Air });
     const World result = simulateStep(world);
-    const World expected(1, { Cell::Wall, Cell::Air });
-    REQUIRE(expected == result);
+    REQUIRE(world == result);
 }
 
 TEST_CASE("falling materials")
 {
     const Cell material = GENERATE(Cell::Snow, Cell::Sand);
-    World world(1, { material, Cell::Air });
+    const World world(1, { material, Cell::Air });
     const World result = simulateStep(world);
     const World expected(1, { Cell::Air, material });
     REQUIRE(expected == result);
@@ -38,7 +38,7 @@ TEST_CASE("falling materials")
 TEST_CASE("falling materials leave no gaps")
 {
     const Cell material = GENERATE(Cell::Snow, Cell::Sand);
-    World world(1, { material, material, Cell::Air });
+    const World world(1, { material, material, Cell::Air });
     const World result = simulateStep(world);
     const World expected(1, { Cell::Air, material, material });
     REQUIRE(expected == result);
@@ -46,8 +46,8 @@ TEST_CASE("falling materials leave no gaps")
 
 TEST_CASE("materials collect at the bottom")
 {
-    const Cell material = GENERATE(Cell::Snow, Cell::Sand);
-    World world(1, { material });
+    const Cell material = GENERATE(Cell::Snow, Cell::Sand, Cell::Eraser, Cell::Wall, Cell::Air);
+    const World world(1, { material });
     const World result = simulateStep(world);
     const World expected(1, { material });
     REQUIRE(expected == result);
@@ -55,7 +55,7 @@ TEST_CASE("materials collect at the bottom")
 
 TEST_CASE("collisions")
 {
-    const Cell top = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand);
+    const Cell top = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand, Cell::Eraser);
     const Cell bottom = GENERATE(Cell::Wall, Cell::Snow, Cell::Sand);
     const World world(1, { top, bottom });
     const World result = simulateStep(world);
@@ -64,7 +64,7 @@ TEST_CASE("collisions")
 
 TEST_CASE("snow stops snow")
 {
-    World world(1, { Cell::Snow, Cell::Snow });
+    const World world(1, { Cell::Snow, Cell::Snow });
     const World result = simulateStep(world);
     const World expected(1, { Cell::Snow, Cell::Snow });
     REQUIRE(expected == result);
@@ -81,9 +81,9 @@ TEST_CASE("snow stacks")
 
 TEST_CASE("sand flows right")
 {
-    World world(2, { Cell::Sand, Cell::Air,
-                       // below:
-                       Cell::Sand, Cell::Air });
+    const World world(2, { Cell::Sand, Cell::Air,
+                             // below:
+                             Cell::Sand, Cell::Air });
     const World result = simulateStep(world);
     const World expected(2, { Cell::Air, Cell::Air,
                                 // below:
@@ -93,9 +93,9 @@ TEST_CASE("sand flows right")
 
 TEST_CASE("sand flows left")
 {
-    World world(2, { Cell::Air, Cell::Sand,
-                       // below:
-                       Cell::Air, Cell::Sand });
+    const World world(2, { Cell::Air, Cell::Sand,
+                             // below:
+                             Cell::Air, Cell::Sand });
     const World result = simulateStep(world);
     const World expected(2,
         { Cell::Air, Cell::Air,
@@ -106,13 +106,22 @@ TEST_CASE("sand flows left")
 
 TEST_CASE("sand doesn't disappear")
 {
-    World world(3, { Cell::Sand, Cell::Sand, Cell::Sand,
-                       // below:
-                       Cell::Sand, Cell::Air, Cell::Air });
+    const World world(3, { Cell::Sand, Cell::Sand, Cell::Sand,
+                             // below:
+                             Cell::Sand, Cell::Air, Cell::Air });
     const World result = simulateStep(world);
     const World expected(3, { Cell::Sand, Cell::Air, Cell::Air,
                                 // below:
                                 Cell::Sand, Cell::Sand, Cell::Sand });
+    REQUIRE(expected == result);
+}
+
+TEST_CASE("eraser eats falling materials")
+{
+    const Cell falling = GENERATE(Cell::Snow, Cell::Sand);
+    const World world(1, { falling, Cell::Eraser });
+    const World result = simulateStep(world);
+    const World expected(1, { Cell::Air, Cell::Eraser });
     REQUIRE(expected == result);
 }
 

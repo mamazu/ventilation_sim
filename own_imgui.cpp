@@ -3,7 +3,7 @@
 #include "imgui.h"
 #include <array>
 
-constexpr std::array<char*, 4> itemLabels { "Air", "Snow", "Wall", "Sand" };
+constexpr std::array<char*, 5> materialNames { "Air", "Snow", "Wall", "Sand", "Eraser" };
 
 void menuBar(World& world, bool& isDemoVisible)
 {
@@ -34,11 +34,11 @@ void menuBar(World& world, bool& isDemoVisible)
 
 void addBrushTreeNode(SimulationSettings& settings)
 {
-    for (size_t i = 0; i < itemLabels.size(); i++) {
-        if (ImGui::RadioButton(itemLabels[i], (settings.currentMaterial == static_cast<Cell>(i)))) {
+    for (size_t i = 0; i < materialNames.size(); i++) {
+        if (ImGui::RadioButton(materialNames[i], (settings.currentMaterial == static_cast<Cell>(i)))) {
             settings.currentMaterial = static_cast<Cell>(i);
         }
-        if ((i + 1) < itemLabels.size()) {
+        if ((i + 1) < materialNames.size()) {
             ImGui::SameLine();
         }
     }
