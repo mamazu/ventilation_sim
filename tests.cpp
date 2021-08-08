@@ -194,7 +194,7 @@ TEST_CASE("sand pile falls right")
                              Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
                              // below:
                              Cell::Sand, Cell::Sand, Cell::Air, Cell::Air });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     const World expected(4,
         { Cell::Sand, Cell::Air, Cell::Air, Cell::Air,
             // below:
@@ -205,7 +205,8 @@ TEST_CASE("sand pile falls right")
             Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
             // below:+
             Cell::Sand, Cell::Sand, Cell::Sand, Cell::Air });
-    REQUIRE(expected == result);
+    REQUIRE(0 != result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("sand pile falls left")
@@ -219,7 +220,7 @@ TEST_CASE("sand pile falls left")
                              Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
                              // below:
                              Cell::Air, Cell::Air, Cell::Sand, Cell::Sand });
-    const World result = simulateStep(world);
+    const std::pair<CellsChanged, World> result = simulateStep(world);
     // sand falls faster to the left than to the right currently
     const World expected(4,
         { Cell::Air, Cell::Air, Cell::Air, Cell::Air,
@@ -231,7 +232,8 @@ TEST_CASE("sand pile falls left")
             Cell::Air, Cell::Sand, Cell::Sand, Cell::Sand,
             // below:
             Cell::Air, Cell::Sand, Cell::Sand, Cell::Sand });
-    REQUIRE(expected == result);
+    REQUIRE(0 != result.first);
+    REQUIRE(expected == result.second);
 }
 
 TEST_CASE("eraser eats falling materials")
