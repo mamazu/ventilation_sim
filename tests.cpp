@@ -116,6 +116,57 @@ TEST_CASE("sand doesn't disappear")
     REQUIRE(expected == result);
 }
 
+TEST_CASE("sand pile falls right")
+{
+    const World world(4, { Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+                             // below:
+                             Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+                             // below:
+                             Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+                             // below:
+                             Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+                             // below:
+                             Cell::Sand, Cell::Sand, Cell::Air, Cell::Air });
+    const World result = simulateStep(world);
+    const World expected(4,
+        { Cell::Sand, Cell::Air, Cell::Air, Cell::Air,
+            // below:
+            Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+            // below:
+            Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+            // below:
+            Cell::Sand, Cell::Sand, Cell::Air, Cell::Air,
+            // below:+
+            Cell::Sand, Cell::Sand, Cell::Sand, Cell::Air });
+    REQUIRE(expected == result);
+}
+
+TEST_CASE("sand pile falls left")
+{
+    const World world(4, { Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
+                             // below:
+                             Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
+                             // below:
+                             Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
+                             // below:
+                             Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
+                             // below:
+                             Cell::Air, Cell::Air, Cell::Sand, Cell::Sand });
+    const World result = simulateStep(world);
+    // sand falls faster to the left than to the right currently
+    const World expected(4,
+        { Cell::Air, Cell::Air, Cell::Air, Cell::Air,
+            // below:
+            Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
+            // below:
+            Cell::Air, Cell::Air, Cell::Sand, Cell::Sand,
+            // below:
+            Cell::Air, Cell::Sand, Cell::Sand, Cell::Sand,
+            // below:
+            Cell::Air, Cell::Sand, Cell::Sand, Cell::Sand });
+    REQUIRE(expected == result);
+}
+
 TEST_CASE("eraser eats falling materials")
 {
     const Cell falling = GENERATE(Cell::Snow, Cell::Sand);
